@@ -1,0 +1,13 @@
+# private inventories never enter the public repository
+src/data.js
+data/registry*.tsv
+data/kotton_30.tsv
+# local builds with an embedded inventory
+dist/*_registry.html
+dist/*CReM*.html
+# OS and editors
+.DS_Store
+Thumbs.db
+*.swp
+node_modules/
+__pycache__/

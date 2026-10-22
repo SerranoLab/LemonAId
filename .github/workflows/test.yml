@@ -1,0 +1,23 @@
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node build.cjs
+      - run: node --test tests/engine.test.cjs tests/app.test.cjs
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m py_compile tools/fcs_panel_manifest.py
+      - name: standalone build has no external dependencies
+        run: |
+          ! grep -q '<script[^>]*src=' dist/LemonAId.html
+          ! grep -q '<link[^>]*href=' dist/LemonAId.html

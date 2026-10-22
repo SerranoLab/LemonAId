@@ -1,0 +1,1 @@
+`serrano_lab_projects_2026-10-21.csv`: 49 projects from the Serrano Lab GitHub folder, generated from file types, READMEs and notebook titles. Values marked "[inferred ...]" and the `inferred_fields` column say what to verify. Import it into `dist/LemonAId.html` to see a full inventory without typing one.

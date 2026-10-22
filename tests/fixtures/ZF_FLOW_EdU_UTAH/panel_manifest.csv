@@ -1,0 +1,88 @@
+file,detector,stain_label,match,reagent_ids,inventory_conjugate
+RAW DATA/30hpf_Specimen_003_1.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_1.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_1.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_10.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_10.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_10.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_11.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_11.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_11.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_13.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_13.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_13.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_3.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_3.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_3.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_4.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_4.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_4.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_9.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_9.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_9.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_DAPI.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_DAPI.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_DAPI.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/30hpf_Specimen_003_negative.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/30hpf_Specimen_003_negative.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/30hpf_Specimen_003_negative.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_16.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_16.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_16.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_17.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_17.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_17.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_18.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_18.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_18.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_19.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_19.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_19.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_24.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_24.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_24.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_25.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_25.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_25.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_26.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_26.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_26.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_27.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_27.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_27.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_28.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_28.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_28.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_DAPI.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_DAPI.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_DAPI.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/48hpf_Specimen_003_negative.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/48hpf_Specimen_003_negative.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/48hpf_Specimen_003_negative.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_31.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_31.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_31.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_32.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_32.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_32.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_33.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_33.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_33.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_39.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_39.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_39.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_40.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_40.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_40.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_41.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_41.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_41.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_42.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_42.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_42.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_43.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_43.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_43.fcs,PE-A,Hucd,marker,AB064;AB095,Purified
+RAW DATA/72hpf_Specimen_003_DAPI.fcs,APC-A,EdU,detector,AB228,Alexa Fluor 647
+RAW DATA/72hpf_Specimen_003_DAPI.fcs,FITC-A,Sox2,marker,AB169;AB202;AB203;AB246;AB247,APC;Purified
+RAW DATA/72hpf_Specimen_003_DAPI.fcs,PE-A,Hucd,marker,AB064;AB095,Purified

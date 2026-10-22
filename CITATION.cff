@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use LemonAId, please cite it as below."
+title: "LemonAId: a local data-readiness planner for research laboratories"
+type: software
+version: "0.6"
+date-released: "2026-10-22"
+license: BSD-2-Clause
+repository-code: "https://github.com/SerranoLab/LemonAId"
+abstract: >-
+  A single-file, local web application that takes a laboratory's project
+  inventory and reports how far each dataset reaches, which metadata the
+  inventory lacks, which projects are closest to shareable, and the evidence-
+  backed checks needed before data can be found and reused. Includes a
+  sample-sheet validator, an FCS header reader matched to a reagent inventory,
+  and a graph export with provenance on every edge.
+authors:
+  - family-names: Serrano
+    given-names: Maria A.
+    email: maserr@bu.edu
+    affiliation: "Center for Regenerative Medicine, Boston University Chobanian & Avedisian School of Medicine"
+  - family-names: Villacorta Martin
+    given-names: Carlos
+    affiliation: "Bioinformatics Core, Center for Regenerative Medicine, Boston University"
+keywords:
+  - data readiness
+  - FAIR data
+  - knowledge graph
+  - provenance
+  - flow cytometry
+  - single-cell genomics

@@ -1,0 +1,54 @@
+unique_id	embryo_id	stage	genotype	treatment	filename	notes
+1	1	30hpf	wildtype	EdU	Specimen_003_1.fcs	
+2	2	30hpf	wildtype	EdU	Specimen_003_2.fcs	
+3	3	30hpf	wildtype	EdU	Specimen_003_3.fcs	
+4	4	30hpf	wildtype	EdU	Specimen_003_4.fcs	
+5	5	30hpf	wildtype	EdU	Specimen_003_5.fcs	
+6	6	30hpf	kmt2dzy59	EdU	Specimen_003_6.fcs	
+7	7	30hpf	kmt2dzy59	EdU	Specimen_003_7.fcs	
+8	8	30hpf	kmt2dzy59	EdU	Specimen_003_8.fcs	
+9	9	30hpf	kmt2dzy59	EdU	Specimen_003_9.fcs	
+10	10	30hpf	kmt2dzy59	EdU	Specimen_003_10.fcs	bad sample quality
+11	11	30hpf	heterozygous	EdU	Specimen_003_11.fcs	
+12	12	30hpf	heterozygous	EdU	Specimen_003_12.fcs	
+13	13	30hpf	heterozygous	EdU	Specimen_003_13.fcs	
+14	14	30hpf	heterozygous	EdU	Specimen_003_14.fcs	
+15	15	30hpf	heterozygous	EdU	Specimen_003_15.fcs	
+16	na	30hpf	na	EdU	Specimen_003_DAPI.fcs	
+17	na	30hpf	na	EdU	Specimen_003_negative.fcs	
+18	16	48hpf	wildtype	EdU	Specimen_003_16.fcs	
+19	17	48hpf	wildtype	EdU	Specimen_003_17.fcs	
+20	18	48hpf	wildtype	EdU	Specimen_003_18.fcs	
+21	19	48hpf	wildtype	EdU	Specimen_003_19.fcs	
+22	20	48hpf	wildtype	EdU	Specimen_003_20.fcs	
+23	21	48hpf	kmt2dzy59	EdU	Specimen_003_21.fcs	
+24	22	48hpf	kmt2dzy59	EdU	Specimen_003_22.fcs	
+25	23	48hpf	kmt2dzy59	EdU	Specimen_003_23.fcs	
+26	24	48hpf	kmt2dzy59	EdU	Specimen_003_24.fcs	
+27	25	48hpf	kmt2dzy59	EdU	Specimen_003_25.fcs	
+28	26	48hpf	heterozygous	EdU	Specimen_003_26.fcs	
+29	27	48hpf	heterozygous	EdU	Specimen_003_27.fcs	
+30	28	48hpf	heterozygous	EdU	Specimen_003_28.fcs	
+31	29	48hpf	heterozygous	EdU	Specimen_003_29.fcs	
+32	30	48hpf	heterozygous	EdU	Specimen_003_30.fcs	
+33	na	48hpf	na	EdU	Specimen_003_DAPI.fcs	
+34	na	48hpf	na	EdU	Specimen_003_negative.fcs	
+35	31	72hpf	wildtype	EdU	Specimen_003_31.fcs	
+36	32	72hpf	wildtype	EdU	Specimen_003_32.fcs	
+37	33	72hpf	wildtype	EdU	Specimen_003_33.fcs	
+38	34	72hpf	wildtype	EdU	Specimen_003_34.fcs	
+39	35	72hpf	wildtype	EdU	Specimen_003_35.fcs	
+40	36	72hpf	kmt2dzy59	EdU	Specimen_003_36.fcs	
+41	37	72hpf	kmt2dzy59	EdU	Specimen_003_37.fcs	
+42	38	72hpf	kmt2dzy59	EdU	Specimen_003_38.fcs	
+43	39	72hpf	kmt2dzy59	EdU	Specimen_003_39.fcs	
+44	40	72hpf	kmt2dzy59	EdU	Specimen_003_40.fcs	
+45	41	72hpf	heterozygous	EdU	Specimen_003_41.fcs	
+46	42	72hpf	heterozygous	EdU	Specimen_003_42.fcs	
+47	43	72hpf	heterozygous	EdU	Specimen_003_43.fcs	
+48	44	72hpf	heterozygous	EdU	Specimen_003_44.fcs	
+49	45	72hpf	heterozygous	EdU	Specimen_003_45.fcs	
+50	na	72hpf	na	EdU	Specimen_003_DAPI.fcs	not good control
+51	na	72hpf	na	EdU	Specimen_003_negative.fcs	
+
+/Users/angieserrano/Documents/Project  KMT2D/Neuro_kmt2d/EdU experiment/FACS/30_48_72_EdU

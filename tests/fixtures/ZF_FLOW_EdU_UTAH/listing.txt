@@ -1,0 +1,161 @@
+Misc/Fig_Intensity_Distributions.png
+Misc/Fig_Intensity_ECDF.png
+Misc/Fig_QC_Gating.png
+Misc/Fig_Stage_Specific_Gates.png
+Misc/Fig_ZF_Complete_Summary.png
+Misc/Fig_ZF_Composition.png
+Misc/Fig_ZF_EdU_Analysis.png
+Misc/Fig_ZF_Key_Populations.png
+Misc/Fig_ZF_Scatter.png
+Misc/Fig_ZF_Summary.png
+RAW DATA/30hpf_Specimen_003_1.fcs
+RAW DATA/30hpf_Specimen_003_10.fcs
+RAW DATA/30hpf_Specimen_003_11.fcs
+RAW DATA/30hpf_Specimen_003_12.fcs
+RAW DATA/30hpf_Specimen_003_13.fcs
+RAW DATA/30hpf_Specimen_003_14.fcs
+RAW DATA/30hpf_Specimen_003_15.fcs
+RAW DATA/30hpf_Specimen_003_2.fcs
+RAW DATA/30hpf_Specimen_003_3.fcs
+RAW DATA/30hpf_Specimen_003_4.fcs
+RAW DATA/30hpf_Specimen_003_5.fcs
+RAW DATA/30hpf_Specimen_003_6.fcs
+RAW DATA/30hpf_Specimen_003_7.fcs
+RAW DATA/30hpf_Specimen_003_8.fcs
+RAW DATA/30hpf_Specimen_003_9.fcs
+RAW DATA/30hpf_Specimen_003_DAPI.fcs
+RAW DATA/30hpf_Specimen_003_negative.fcs
+RAW DATA/48hpf_Specimen_003_16.fcs
+RAW DATA/48hpf_Specimen_003_17.fcs
+RAW DATA/48hpf_Specimen_003_18.fcs
+RAW DATA/48hpf_Specimen_003_19.fcs
+RAW DATA/48hpf_Specimen_003_20.fcs
+RAW DATA/48hpf_Specimen_003_21.fcs
+RAW DATA/48hpf_Specimen_003_22.fcs
+RAW DATA/48hpf_Specimen_003_23.fcs
+RAW DATA/48hpf_Specimen_003_24.fcs
+RAW DATA/48hpf_Specimen_003_25.fcs
+RAW DATA/48hpf_Specimen_003_26.fcs
+RAW DATA/48hpf_Specimen_003_27.fcs
+RAW DATA/48hpf_Specimen_003_28.fcs
+RAW DATA/48hpf_Specimen_003_29.fcs
+RAW DATA/48hpf_Specimen_003_30.fcs
+RAW DATA/48hpf_Specimen_003_DAPI.fcs
+RAW DATA/48hpf_Specimen_003_negative.fcs
+RAW DATA/72hpf_Specimen_003_31.fcs
+RAW DATA/72hpf_Specimen_003_32.fcs
+RAW DATA/72hpf_Specimen_003_33.fcs
+RAW DATA/72hpf_Specimen_003_34.fcs
+RAW DATA/72hpf_Specimen_003_35.fcs
+RAW DATA/72hpf_Specimen_003_36.fcs
+RAW DATA/72hpf_Specimen_003_37.fcs
+RAW DATA/72hpf_Specimen_003_38.fcs
+RAW DATA/72hpf_Specimen_003_39.fcs
+RAW DATA/72hpf_Specimen_003_40.fcs
+RAW DATA/72hpf_Specimen_003_41.fcs
+RAW DATA/72hpf_Specimen_003_42.fcs
+RAW DATA/72hpf_Specimen_003_43.fcs
+RAW DATA/72hpf_Specimen_003_44.fcs
+RAW DATA/72hpf_Specimen_003_45.fcs
+RAW DATA/72hpf_Specimen_003_DAPI.fcs
+RAW DATA/72hpf_Specimen_003_negative.fcs
+ZF_FLOW_EdU_UTAH.Rproj
+archive/parse_fcs.py
+archive/zebrafish_edu_analysis.qmd
+archive/zebrafish_edu_analysis_final.html
+archive/zebrafish_edu_analysis_finalV0_working.qmd
+archive/zebrafish_edu_analysis_final_EDITED.html
+archive/zebrafish_edu_analysis_final_EDITED.qmd
+archive/zebrafish_edu_analysis_v2.qmd
+data_info_EdU_23JUL2019.txt
+gates/6ba49657-76f7-408e-a759-46f1e43eed7c.png
+gates/6f1dfe3f-6d59-47f9-83cd-2b5a5a0fe596.png
+gates/a706de25-3b1f-415b-9c1e-79bc95165472.png
+input/excluded_samples.tsv
+input/file_qc.csv
+input/sample_summary.csv
+input/zebrafish_edu_combined.csv
+input/zebrafish_edu_combined_all.csv
+output/CSV/comprehensive_statistics_summary.csv
+output/CSV/cv_analysis_by_embryo.csv
+output/CSV/edu_by_embryo.csv
+output/CSV/edu_intensity_by_population.csv
+output/CSV/edu_intensity_summary.csv
+output/CSV/edu_retention_index.csv
+output/CSV/edu_summary.csv
+output/CSV/intensity_by_embryo.csv
+output/CSV/ks_test_results.csv
+output/CSV/marker_gates.csv
+output/CSV/marker_gates_stage_specific.csv
+output/CSV/marker_intensities_by_population.csv
+output/CSV/neurogenesis_rate_by_embryo.csv
+output/CSV/pairwise_statistics.csv
+output/CSV/population_by_embryo.csv
+output/CSV/population_summary.csv
+output/CSV/qc_gate_thresholds.csv
+output/CSV/qc_summary.csv
+output/CSV/sample_sizes_for_methods.csv
+output/CSV/sox2_edu_cycling_summary.csv
+output/CSV/sox2_hucd_double_positive_by_embryo.csv
+output/CSV/transition_metrics_by_embryo.csv
+output/CSV/zebrafish_edu_qc_gated.csv
+output/CSV/zebrafish_gated.csv
+output/PDF/Fig_00_Marker_Histograms.pdf
+output/PDF/Fig_00b_Marker_Density_byGenotype.pdf
+output/PDF/Fig_00c_Gate_Validation.pdf
+output/PDF/Fig_00d2_EdU_Genotype_Overlay.pdf
+output/PDF/Fig_00d3_Sox2_EdU_Cycling_Progenitors.pdf
+output/PDF/Fig_00d_EdU_Dilution.pdf
+output/PDF/Fig_00e_EdU_Intensity_Quantification.pdf
+output/PDF/Fig_01_Scatter.pdf
+output/PDF/Fig_01_Scatter_All.pdf
+output/PDF/Fig_02_Intensity_Ridges.pdf
+output/PDF/Fig_03_ECDF.pdf
+output/PDF/Fig_04_Intensity_Embryo.pdf
+output/PDF/Fig_04_Intensity_per_Embryo.pdf
+output/PDF/Fig_05_Trajectory.pdf
+output/PDF/Fig_06_Boxplot.pdf
+output/PDF/Fig_07_EdU.pdf
+output/PDF/Fig_08_Summary.pdf
+output/PDF/Fig_Grant_01_Population_Counts.pdf
+output/PDF/Fig_Grant_02_Marker_Intensities.pdf
+output/PDF/Fig_Grant_03_Distributions.pdf
+output/PDF/Fig_Grant_04_Trajectories.pdf
+output/PDF/Fig_Grant_05_DoublePositive_Analysis.pdf
+output/PDF/Fig_Grant_06_Neurogenesis_Metrics.pdf
+output/PDF/Fig_Grant_07_CV_Heterogeneity.pdf
+output/PDF/Fig_Grant_08_Transition_Dynamics.pdf
+output/PNG/Fig_00_Marker_Histograms.png
+output/PNG/Fig_00b_Marker_Density_byGenotype.png
+output/PNG/Fig_00c_Gate_Validation.png
+output/PNG/Fig_00d2_EdU_Genotype_Overlay.png
+output/PNG/Fig_00d3_Sox2_EdU_Cycling_Progenitors.png
+output/PNG/Fig_00d_EdU_Dilution.png
+output/PNG/Fig_00e_EdU_Intensity_Quantification.png
+output/PNG/Fig_01_Scatter.png
+output/PNG/Fig_02_Intensity_Ridges.png
+output/PNG/Fig_03_ECDF.png
+output/PNG/Fig_04_Intensity_Embryo.png
+output/PNG/Fig_05_Trajectory.png
+output/PNG/Fig_06_Boxplot.png
+output/PNG/Fig_07_EdU.png
+output/PNG/Fig_08_Summary.png
+output/PNG/Fig_Grant_01_Population_Counts.png
+output/PNG/Fig_Grant_02_Marker_Intensities.png
+output/PNG/Fig_Grant_03_Distributions.png
+output/PNG/Fig_Grant_04_Trajectories.png
+output/PNG/Fig_Grant_05_DoublePositive_Analysis.png
+output/PNG/Fig_Grant_06_Neurogenesis_Metrics.png
+output/PNG/Fig_Grant_07_CV_Heterogeneity.png
+output/PNG/Fig_Grant_08_Transition_Dynamics.png
+output/QC/Fig_Optional_EmbryoQuantiles_Sox2Only_EdU.png
+output/QC/QC_01_FSC_SSC_Raw.png
+output/QC/QC_01_Summary.png
+output/QC/QC_02_Gating_Summary.png
+output/zebrafish_results.rds
+parse_fcs.py
+parse_fcs_original.py
+zebrafish_edu_analysis_final.qmd
+zebrafish_edu_analysis_final_revised.html
+zebrafish_edu_analysis_final_revised.qmd
+zebrafish_edu_data.csv

@@ -1,0 +1,10 @@
+sample_id	dose_nM	dose_label	residual_kmt2d_pct	antibody	is_control	seq_index	fastq_R1	fastq_R2
+0nM_H3K27me3	0	0 nM	100	H3K27me3	no	S24	raw/fastq/20260904_NPC_KMT2D-Degron_0nM_dTag_H3K27me3_SS14456_S24_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_0nM_dTag_H3K27me3_SS14456_S24_L004_R2_001.fastq.gz
+0nM_IgG	0	0 nM	100	IgG	yes	S30	raw/fastq/20260904_NPC_KMT2D-Degron_0nM_dTag_IgG_SS14456_S30_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_0nM_dTag_IgG_SS14456_S30_L004_R2_001.fastq.gz
+0nM_KMT2D	0	0 nM	100	KMT2D	no	S27	raw/fastq/20260904_NPC_KMT2D-Degron_0nM_dTag_KMT2D_SS14456_S27_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_0nM_dTag_KMT2D_SS14456_S27_L004_R2_001.fastq.gz
+0pt1nM_H3K27me3	0.1	0.1 nM	20-40	H3K27me3	no	S25	raw/fastq/20260904_NPC_KMT2D-Degron_0pt1nM_dTag_H3K27me3_SS14456_S25_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_0pt1nM_dTag_H3K27me3_SS14456_S25_L004_R2_001.fastq.gz
+0pt1nM_IgG	0.1	0.1 nM	20-40	IgG	yes	S31	raw/fastq/20260904_NPC_KMT2D-Degron_0pt1nM_dTag_IgG_SS14456_S31_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_0pt1nM_dTag_IgG_SS14456_S31_L004_R2_001.fastq.gz
+0pt1nM_KMT2D	0.1	0.1 nM	20-40	KMT2D	no	S28	raw/fastq/20260904_NPC_KMT2D-Degron_0pt1nM_dTag_KMT2D_SS14456_S28_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_0pt1nM_dTag_KMT2D_SS14456_S28_L004_R2_001.fastq.gz
+10nM_H3K27me3	10	10 nM	10-25	H3K27me3	no	S26	raw/fastq/20260904_NPC_KMT2D-Degron_10nM_dTag_H3K27me3_SS14456_S26_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_10nM_dTag_H3K27me3_SS14456_S26_L004_R2_001.fastq.gz
+10nM_IgG	10	10 nM	10-25	IgG	yes	S32	raw/fastq/20260904_NPC_KMT2D-Degron_10nM_dTag_IgG_SS14456_S32_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_10nM_dTag_IgG_SS14456_S32_L004_R2_001.fastq.gz
+10nM_KMT2D	10	10 nM	10-25	KMT2D	no	S29	raw/fastq/20260904_NPC_KMT2D-Degron_10nM_dTag_KMT2D_SS14456_S29_L004_R1_001.fastq.gz	raw/fastq/20260904_NPC_KMT2D-Degron_10nM_dTag_KMT2D_SS14456_S29_L004_R2_001.fastq.gz

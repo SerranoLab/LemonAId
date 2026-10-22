@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>LemonAId · Data readiness planner</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="data.js"></script><script defer src="engine.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to workspace</a>
+  <aside class="sidebar">
+    <div class="brand"><svg class="logo" viewBox="0 0 300 240" width="58" height="46" aria-hidden="true"><g transform="translate(17 10)"><g transform="matrix(.7 0 0 .7 -32 -75.4)"><path d="M62 182C69 169 87 166 103 164C125 161 143 144 173 134C208 121 244 120 274 132C321 149 356 181 371 218C383 249 378 283 369 311C365 324 363 337 369 351C355 341 344 337 332 340C310 343 295 353 268 356C225 362 193 354 167 343C133 329 112 307 99 281C89 262 88 244 82 223C76 203 57 192 62 182Z" fill="#F2D447"/><path d="M334 377C340 362 351 356 364 354C373 348 373 337 376 323C382 303 400 287 418 280C417 302 405 317 391 327C381 336 383 346 373 359C360 373 347 377 334 377Z" fill="#F2D447"/><g fill="none" stroke="#173E32" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M215 231L197 164" fill="none" stroke="#173E32" stroke-width="5"/><path d="M215 231L278 172" fill="none" stroke="#173E32" stroke-width="5"/><path d="M215 231L310 197" fill="none" stroke="#173E32" stroke-width="5"/><path d="M215 231L336 285" fill="none" stroke="#173E32" stroke-width="5"/><path d="M215 231L270 318" fill="none" stroke="#173E32" stroke-width="5"/><path d="M215 231L171 298" fill="none" stroke="#173E32" stroke-width="5"/></g><circle cx="197" cy="164" r="15" fill="#F2D447" stroke="#173E32" stroke-width="5"/><circle cx="278" cy="172" r="9" fill="#F2D447" stroke="#173E32" stroke-width="5"/><circle cx="310" cy="197" r="12" fill="#F2D447" stroke="#173E32" stroke-width="5"/><circle cx="336" cy="285" r="16" fill="#F2D447" stroke="#173E32" stroke-width="5"/><circle cx="270" cy="318" r="12" fill="#F2D447" stroke="#173E32" stroke-width="5"/><circle cx="171" cy="298" r="13" fill="#F2D447" stroke="#173E32" stroke-width="5"/><circle cx="215" cy="231" r="14.5" fill="#F2D447" stroke="#173E32" stroke-width="5"/></g></g></svg><div><span id="brand-name" class="wordmark">Lemon<b>AI</b>d</span><span id="brand-sub">YOUR DATA. A CLEARER PATH.</span></div></div>
+    <div class="workspace-label">DATA READINESS PLANNER</div>
+    <nav aria-label="Planning steps">
+      <button data-view="inventory" class="nav active"><span>01</span> What you have</button>
+      <button data-view="structure" class="nav"><span>02</span> Suggested structure</button>
+      <button data-view="connections" class="nav"><span>03</span> Connections to confirm</button>
+      <button data-view="actions" class="nav"><span>04</span> Your action plan</button>
+      <button data-view="future" class="nav"><span>＋</span> Future extensions</button>
+    </nav>
+    <div class="sidebar-bottom"><p>Local prototype · v0.6<br>Any inventory, any assay</p><p class="subtle">Start with what you have.<br>Map your data. Find the gaps.<br>Plan what comes next.</p></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div><span class="dot"></span> Local workspace <span class="divider">/</span> <span id="source-name">Inventory</span></div><div class="tools"><button id="import-open" class="button small">Import inventory</button><button id="export-open" class="button small primary">Export plan ↗</button></div></header>
+    <main id="content" tabindex="-1"></main>
+    <footer><span id="save-state" role="status">Saved in this browser</span><span>© 2026 Center for Regenerative Medicine, Boston University. LemonAId reads inventories, never assay files, and sends nothing anywhere.</span></footer>
+  </div>
+  <dialog id="intake-dialog" aria-labelledby="intake-title">
+    <div class="dialog-head"><div><div class="eyebrow">BRING WHAT YOU HAVE</div><h2 id="intake-title">Import a project inventory</h2></div><button class="icon-close" data-close="intake-dialog" aria-label="Close import">×</button></div>
+    <p>Use your existing column names. Review the suggested mapping before importing. Original text and unmapped columns are retained.</p>
+    <label class="filebox">Choose CSV or TSV <input type="file" id="inventory-file" accept=".csv,.tsv,text/csv,text/tab-separated-values"></label>
+    <p class="hint">Excel: save the sheet as CSV or TSV first. Any column names work; you will map them on the next step.</p>
+    <label for="paste-data">Or paste a table, including its header row</label><textarea id="paste-data" rows="5" placeholder="Project&#9;Owner&#9;Description"></textarea>
+    <button id="parse-intake" class="button">Review columns</button><div id="import-error" class="error" role="alert"></div><div id="mapping-preview"></div>
+    <hr><label class="filebox">Restore an exported session <input id="session-file" type="file" accept=".json,application/json"></label>
+    <p class="hint">Session restore replaces this browser’s inventory and review notes. Export your current session first if needed.</p>
+  </dialog>
+  <dialog id="export-dialog" aria-labelledby="export-title">
+    <div class="dialog-head"><div><div class="eyebrow">TAKE THE NEXT STEP</div><h2 id="export-title">Export this project’s plan</h2></div><button class="icon-close" data-close="export-dialog" aria-label="Close export">×</button></div>
+    <p>The report includes the source text, proposed mappings, the questions, your evidence notes and the ordered action plan for the project in focus.</p>
+    <div class="export-options"><div class="export-group">For the project in focus</div><button id="export-report" class="export-card"><strong>Readable report ↗</strong><span>HTML • open in a browser or print to PDF</span></button><button id="export-actions" class="export-card"><strong>Action list ↗</strong><span>CSV • owners, dependencies and completion checks</span></button><div class="export-group">For the whole inventory</div><button id="export-overview" class="export-card"><strong>Inventory overview ↗</strong><span>HTML • coverage, reach by laboratory and the start-here list; print to PDF</span></button><button id="export-all" class="export-card"><strong>All projects ↗</strong><span>CSV • every record with assay class, reach, readiness score and evidence count</span></button><div class="export-group">For the knowledge graph</div><button id="export-nodes" class="export-card"><strong>Graph nodes ↗</strong><span>CSV • Project, Lab, Person, Organism, Assay, ReporterDescription, DataResource, DataFile, Reagent, EvidenceState</span></button><button id="export-edges" class="export-card"><strong>Graph edges ↗</strong><span>CSV • source, relation, target, provenance (recorded, inferred, normalised, user-reported), source record, evidence</span></button><button id="export-norm" class="export-card"><strong>Normalisation table ↗</strong><span>CSV • every source spelling, controlled term, reviewer and status</span></button><button id="export-session" class="export-card"><strong>Save a resumable session ↗</strong><span>JSON • all projects, review answers and notes</span></button></div>
+    <p class="hint">Downloads contain the selected source records and your notes. The app itself does not upload or publish them.</p>
+    <div id="export-result" hidden><p id="export-filename" role="status"></p><details><summary>Copy the prepared file content if your browser blocks downloads</summary><label for="export-text">Prepared file content</label><textarea id="export-text" rows="9" readonly></textarea></details></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body></html>
