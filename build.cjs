@@ -19,4 +19,6 @@ data+='window.CREM_REAGENTS = '+JSON.stringify(reagents)+';\nwindow.CREM_BUILD =
 const code=[data,...['engine.js','app.js'].map(n=>fs.readFileSync(path.join(src,n),'utf8'))].join('\n').replace(/<\/script/gi,'<\\/script');
 html=html.replace('</body>',()=>`<script>${code}</script></body>`);
 const name=(opt('--name')||'LemonAId')+'.html';fs.writeFileSync(path.join(out,name),html);
-console.log(`Saved dist/${name}${blank?' (no inventory embedded; import one in the app)':''}, reagents: ${reagents.length}`);
+// The same page as index.html, so dist/ can be served as-is (GitHub Pages) while LemonAId.html stays the download name.
+if(blank&&!opt('--name'))fs.writeFileSync(path.join(out,'index.html'),html);
+console.log(`Saved dist/${name}${blank&&!opt('--name')?' and dist/index.html':''}${blank?' (no inventory embedded; import one in the app)':''}, reagents: ${reagents.length}`);

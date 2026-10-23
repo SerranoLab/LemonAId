@@ -15,7 +15,7 @@ Exports: a readable report and action list per project; an inventory overview an
 
 ## Start in five minutes
 
-1. Download `dist/LemonAId.html` and open it in Chrome, Safari, Firefox or Edge. No install, no server, no account. Nothing is sent anywhere.
+1. Download `dist/LemonAId.html` and open it in Chrome, Safari, Firefox or Edge. No install, no server, no account. Nothing is sent anywhere. (`dist/index.html` is the same page, kept so the `dist` folder can be served directly, for example by GitHub Pages.)
 2. Click **Import inventory** and choose a CSV or TSV with one row per project. Three columns are enough to start: a project ID, a name, a date. Any column names work; you match them on the next screen.
 3. Read screen 01. Then pick one project, answer one question with evidence on screen 03, and watch the plan on screen 04 change.
 4. **Export plan → Save a resumable session** before you close the browser. Notes live in the browser that opened the file; the session file is how they travel.
