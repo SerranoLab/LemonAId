@@ -37,6 +37,6 @@ reg('explicit bulk assay triggers a scope review rather than assuming single-cel
 
 reg('inventory-level exports cover every record and the blank build carries no inventory',async()=>{
  const h=harness();await h.click('export-all');const p=E.parseDelimited(h.node('#export-text').value);assert.equal(p.rows.length,409);assert.ok(p.headers.includes('Reach'));assert.ok(p.rows.some(r=>r.raw.Reach==='Public accession'));
- await h.click('export-overview');const o=h.node('#export-text').value;assert.ok(o.includes('Reach by laboratory')&&o.includes('Start here')&&o.includes('Kotton Lab'));
- const blank=fs.readFileSync(path.join(__dirname,'../dist/LemonAId.html'),'utf8');assert.ok(!blank.includes('25_06_24_lauren'));assert.ok(blank.includes('"records": []'));assert.ok(!/<script[^>]+src=/.test(blank));
+ await h.click('export-overview');const o=h.node('#export-text').value;assert.ok(o.includes('Reach by laboratory')&&o.includes('Closest to shareable')&&o.includes('Kotton Lab'));
+ const blank=fs.readFileSync(path.join(__dirname,'../dist/LemonAId.html'),'utf8');assert.ok(!blank.includes('25_06_24_lauren'));assert.ok(/"records":\s*\[\]/.test(blank));assert.ok(!/<script[^>]+src=/.test(blank));
 });

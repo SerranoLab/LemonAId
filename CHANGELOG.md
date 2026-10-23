@@ -1,4 +1,14 @@
-# LemonAId, v0.2 to v0.6 (21 October 2026, evening)
+# LemonAId changelog
+
+## v0.7, 23 October 2026 (from Angie's review notes)
+- Reach labels defined on screen and in the overview; "Core only" renamed "Local only".
+- Readiness score shown for every project as a sortable column; rule printed; shortlist renamed "Closest to shareable, by what the inventory records".
+- Query panel reworded: purpose stated (a baseline), "needs all of", "met by N", "N of 409 meet all requirements".
+- Structure screen in plain words: "One chain for every dataset; the assay comes last"; edge names demoted to small print.
+- Normalisation table shows target namespace and Biolink category per field.
+- Graph export: Biolink knowledge_level, agent_type and primary_knowledge_source on every edge; biolink_category on every node; new provenance word `reviewed` when a normalisation row has a reviewer. See docs/provenance.md.
+
+# v0.2 to v0.6 (21 October 2026, evening)
 
 ## v0.6, panels and reagents
 - Reagent inventory from the EpiFlow Panel Builder embedded (267 entries).

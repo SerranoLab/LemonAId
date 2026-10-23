@@ -106,6 +106,7 @@
     if(goal==='share')return QUESTIONS.filter(q=>!['flow','relation','matrix'].includes(q.id));
     return QUESTIONS.filter(q=>goal==='joint'||!['flow','relation'].includes(q.id));
   }
+  const READINESS_RULE='One point for each context field recorded (name, contact, assay, organism, purpose), two for a viewer link, one for a 2023 or later date; eight in total. Projects with a public accession are excluded. The score measures what the inventory records, not the quality of the data.';
   // Start-here ranking: projects that are nearly ready to share but have no public accession.
   // Score = recorded context fields (name, contact, assay, organism, purpose; 1 each) + viewer (2) + registered 2023 or later (1).
   function readiness(p){
@@ -197,8 +198,8 @@
     return 'recorded';
   }
   // Normalisation: proposed controlled term per distinct source string, for assay and organism.
-  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',propose:p=>{const t=classify(p).filter(x=>!/confirm|disagree/.test(x));return t.length?t[0].replace(/ (recorded|stated)$/,''):'';}},
-                      genome_reference:{label:'Organism',ontology:'NCBITaxon',propose:p=>{const o=species(p).organism;return o==='Unknown'||o==='Unresolved'?'':o;}}};
+  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=classify(p).filter(x=>!/confirm|disagree/.test(x));return t.length?t[0].replace(/ (recorded|stated)$/,''):'';}},
+                      genome_reference:{label:'Organism',ontology:'NCBITaxon',namespace:'NCBITaxon:',biolink:'biolink:OrganismTaxon',propose:p=>{const o=species(p).organism;return o==='Unknown'||o==='Unresolved'?'':o;}}};
   function normTable(records,map,overrides={}){
     const out={};
     for(const f of Object.keys(NORM_TARGETS)){
@@ -246,33 +247,48 @@
       return {id:q.id,title:q.title,source:q.source,horizon:!!q.horizon,ready,n:records.length,needs:q.needs.map(([label],i)=>({label,count:per[i]})),limiting};
     });
   }
+  // Provenance vocabulary: LemonAId's plain word, mapped to Biolink edge properties (knowledge_level,
+  // agent_type, primary_knowledge_source) so a Biolink-aligned loader (OptimusKG / CReM-KG) can take it as is.
+  const PROVENANCE={
+    recorded:      {meaning:'Present in the source inventory as written',               knowledge_level:'knowledge_assertion',   agent_type:'manual_agent',                         source:'inventory'},
+    inferred:      {meaning:'Derived by the inventory compiler (for example lab from folder paths)', knowledge_level:'observation', agent_type:'data_analysis_pipeline',          source:'inventory'},
+    absent:        {meaning:'The inventory has no value; the edge is a placeholder',    knowledge_level:'not_provided',          agent_type:'not_provided',                         source:'inventory'},
+    normalised:    {meaning:'Controlled term proposed by LemonAId; source string kept as evidence', knowledge_level:'knowledge_assertion', agent_type:'automated_agent',        source:'lemonaid'},
+    reviewed:      {meaning:'Controlled term confirmed by a named reviewer',            knowledge_level:'knowledge_assertion',   agent_type:'manual_validation_of_automated_agent', source:'lemonaid'},
+    user_reported: {meaning:'Answer recorded on screen 03 with evidence named',         knowledge_level:'observation',           agent_type:'manual_agent',                         source:'lemonaid'},
+    file_header:   {meaning:'Read from an FCS header; marker and fluorochrome agree with one reagent', knowledge_level:'observation', agent_type:'data_analysis_pipeline',     source:'file'},
+    proposed:      {meaning:'Header label plus detector convention picks the conjugate', knowledge_level:'prediction',           agent_type:'automated_agent',                      source:'file'},
+    candidate:     {meaning:'Marker matched; several conjugates possible; a person chooses', knowledge_level:'prediction',       agent_type:'automated_agent',                      source:'file'}
+  };
   // Graph export: one row per node and per edge, project level, with provenance on every edge.
   // Node labels follow the CReM-KG nouns where the inventory can support them; sample, contrast and
   // gene nodes appear only once sample-level data have been ingested, so they are not invented here.
   // Panel manifest rows (from tools/fcs_panel_manifest.py): file, detector, stain_label, match, reagent_ids
   function parseManifest(text){try{const p=parseDelimited(text);return p.rows.map(r=>r.raw).filter(r=>r.file&&r.reagent_ids);}catch{return [];}}
-  function graphExport(records,map,pmap,reviews={},norm={},reagents=[]){
+  function graphExport(records,map,pmap,reviews={},norm={},reagents=[],opts={}){
     const nodes=new Map(),edges=[];
     const node=(id,label,name,props={})=>{if(!nodes.has(id))nodes.set(id,{id,label,name,...props});return id;};
-    const edge=(s,rel,t,prov,src,evidence='')=>edges.push({source:s,relation:rel,target:t,provenance:prov,source_record:src,evidence});
+    const sourceName=(opts.sourceName||'inventory');
+    const edge=(s,rel,t,prov,src,evidence='')=>{const p=PROVENANCE[prov]||PROVENANCE.recorded;edges.push({source:s,relation:rel,target:t,provenance:prov,knowledge_level:p.knowledge_level,agent_type:p.agent_type,primary_knowledge_source:p.source==='inventory'?'infores:'+slug(sourceName):p.source==='file'?'infores:file-header':'infores:lemonaid',source_record:src,evidence});};
     const slug=x=>clean(x).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     for(const r of records){
       const p=canonical(r,map),src=`row ${r.row}`,rev=reviews[r.key]||{},a=rev.answers||{};
-      const pid=node('project:'+slug(p.project_id||'row-'+r.row),'Project',p.Dataset_Name||p.project_id,{project_id:p.project_id,date:p.project_date,purpose:p.purpose_of_experiment,purpose_provenance:provenanceOf(r,pmap,'purpose_of_experiment'),source_row:r.row});
-      if(!missing(p.lab))for(const l of p.lab.split(/;\s*/)){const lid=node('lab:'+slug(l),'Lab',l);edge(pid,'IN_LAB',lid,provenanceOf(r,pmap,'lab'),src);}
-      if(!missing(p.contact_person)){const cid=node('person:'+slug(p.contact_person),'Person',p.contact_person);edge(pid,'HAS_CONTACT',cid,'recorded',src);}
-      if(!missing(p.genome_reference)){const term=termFor(norm,'genome_reference',p.genome_reference)||species(p).organism;const oid=node('organism:'+slug(term),'Organism',term,{ontology:'NCBITaxon (to resolve)'});edge(pid,'USES_ORGANISM',oid,term===p.genome_reference?'recorded':'normalised',src,'source string: '+p.genome_reference);}
-      if(!missing(p.experiment_type)){const term=termFor(norm,'experiment_type',p.experiment_type)||p.experiment_type;const aid=node('assay:'+slug(term),'Assay',term,{ontology:'OBI/EFO (to resolve)'});edge(pid,'HAS_ASSAY',aid,term===p.experiment_type?'recorded':'normalised',src,'source string: '+p.experiment_type);}
-      if(!missing(p.reporters)){const rid=node('reporter:'+slug(p.reporters).slice(0,60),'ReporterDescription',p.reporters);edge(pid,'USES_REPORTER',rid,'recorded',src,'free text; resolve to iPSC line and gene symbols at sample ingest');}
-      for(const [f,role] of [['shinyapp_link','Shiny viewer'],['analysis_visualization_link','Interactive viewer']])if(!missing(p[f]))for(const u of p[f].split(/;\s*/)){const did=node('resource:'+slug(u).slice(0,80),'DataResource',u,{role});edge(pid,'HAS_RESOURCE',did,'recorded',src);}
-      if(!missing(p.geo_accession)){const gid=node('accession:'+slug(p.geo_accession),'DataResource',p.geo_accession,{role:'Public repository accession'});edge(pid,'DEPOSITED_AS',gid,'recorded',src);}
+      const pid=node('project:'+slug(p.project_id||'row-'+r.row),'Project',p.Dataset_Name||p.project_id,{biolink_category:'biolink:Study',project_id:p.project_id,date:p.project_date,purpose:p.purpose_of_experiment,purpose_provenance:provenanceOf(r,pmap,'purpose_of_experiment'),source_row:r.row});
+      if(!missing(p.lab))for(const l of p.lab.split(/;\s*/)){const lid=node('lab:'+slug(l),'Lab',l,{biolink_category:'biolink:Agent'});edge(pid,'IN_LAB',lid,provenanceOf(r,pmap,'lab'),src);}
+      if(!missing(p.contact_person)){const cid=node('person:'+slug(p.contact_person),'Person',p.contact_person,{biolink_category:'biolink:Agent'});edge(pid,'HAS_CONTACT',cid,'recorded',src);}
+      const normProv=(f,v)=>{const row=(norm[f]||[]).find(x=>x.original===clean(v));return row&&row.reviewer?'reviewed':'normalised';};
+      if(!missing(p.genome_reference)){const term=termFor(norm,'genome_reference',p.genome_reference)||species(p).organism;const oid=node('organism:'+slug(term),'Organism',term,{biolink_category:'biolink:OrganismTaxon',ontology:'NCBITaxon (to resolve)'});edge(pid,'USES_ORGANISM',oid,term===p.genome_reference?'recorded':normProv('genome_reference',p.genome_reference),src,'source string: '+p.genome_reference);}
+      if(!missing(p.experiment_type)){const term=termFor(norm,'experiment_type',p.experiment_type)||p.experiment_type;const aid=node('assay:'+slug(term),'Assay',term,{biolink_category:'biolink:Procedure',ontology:'OBI/EFO (to resolve)'});edge(pid,'HAS_ASSAY',aid,term===p.experiment_type?'recorded':normProv('experiment_type',p.experiment_type),src,'source string: '+p.experiment_type);}
+      if(!missing(p.reporters)){const rid=node('reporter:'+slug(p.reporters).slice(0,60),'ReporterDescription',p.reporters,{biolink_category:'biolink:InformationContentEntity'});edge(pid,'USES_REPORTER',rid,'recorded',src,'free text; resolve to iPSC line and gene symbols at sample ingest');}
+      for(const [f,role] of [['shinyapp_link','Shiny viewer'],['analysis_visualization_link','Interactive viewer']])if(!missing(p[f]))for(const u of p[f].split(/;\s*/)){const did=node('resource:'+slug(u).slice(0,80),'DataResource',u,{biolink_category:'biolink:InformationResource',role});edge(pid,'HAS_RESOURCE',did,'recorded',src);}
+      if(!missing(p.geo_accession)){const gid=node('accession:'+slug(p.geo_accession),'DataResource',p.geo_accession,{biolink_category:'biolink:InformationResource',role:'Public repository accession'});edge(pid,'DEPOSITED_AS',gid,'recorded',src);}
       // panel manifest: data files and the reagents their headers name
       const man=rev.validation&&rev.validation.panel?parseManifest(rev.validation.panel):[];
       const seenFiles=new Set();
-      for(const row of man){const fid='file:'+slug(p.project_id||'row-'+r.row)+':'+slug(row.file).slice(0,80);if(!seenFiles.has(fid)){seenFiles.add(fid);node(fid,'DataFile',row.file,{format:'FCS'});edge(pid,'HAS_FILE',fid,'recorded',src,'listed in panel manifest');}
+      for(const row of man){const fid='file:'+slug(p.project_id||'row-'+r.row)+':'+slug(row.file).slice(0,80);if(!seenFiles.has(fid)){seenFiles.add(fid);node(fid,'DataFile',row.file,{biolink_category:'biolink:InformationContentEntity',format:'FCS'});edge(pid,'HAS_FILE',fid,'recorded',src,'listed in panel manifest');}
         const prov=row.match==='exact'?'file_header':row.match==='detector'?'proposed':'candidate';
-        for(const rid of String(row.reagent_ids).split(';').map(clean).filter(Boolean)){const rg=reagents.find(x=>x.id===rid);const nid=node('reagent:'+slug(rid),'Reagent',rg?`${rg.marker} ${rg.conjugation||''}`.trim():rid,rg?{reagent_id:rg.id,marker:rg.marker,clone:rg.clone,catalog:rg.catNo,conjugation:rg.conjugation,vendor:rg.vendor,module:rg.module}:{reagent_id:rid});edge(fid,'STAINED_WITH',nid,prov,src,`label "${row.stain_label}" on ${row.detector}; match: ${row.match}`);}}
-      for(const q of QUESTIONS){if(a[q.id]&&clean(a[q.id].evidence)){const sid=node('state:'+q.id+':'+a[q.id].value,'EvidenceState',q.label+' = '+(q.options.find(o=>o[0]===a[q.id].value)||[])[1]);edge(pid,'HAS_EVIDENCE',sid,'user_reported',src,a[q.id].evidence);}}
+        for(const rid of String(row.reagent_ids).split(';').map(clean).filter(Boolean)){const rg=reagents.find(x=>x.id===rid);const nid=node('reagent:'+slug(rid),'Reagent',rg?`${rg.marker} ${rg.conjugation||''}`.trim():rid,rg?{biolink_category:'biolink:ChemicalEntity',reagent_id:rg.id,marker:rg.marker,clone:rg.clone,catalog:rg.catNo,conjugation:rg.conjugation,vendor:rg.vendor,module:rg.module}:{reagent_id:rid});edge(fid,'STAINED_WITH',nid,prov,src,`label "${row.stain_label}" on ${row.detector}; match: ${row.match}`);}}
+      for(const q of QUESTIONS){if(a[q.id]&&clean(a[q.id].evidence)){const sid=node('state:'+q.id+':'+a[q.id].value,'EvidenceState',q.label+' = '+(q.options.find(o=>o[0]===a[q.id].value)||[])[1],{biolink_category:'biolink:InformationContentEntity'});edge(pid,'HAS_EVIDENCE',sid,'user_reported',src,a[q.id].evidence);}}
     }
     return {nodes:[...nodes.values()],edges};
   }
@@ -375,6 +391,6 @@
   }
 
   function csv(rows){return rows.map(r=>r.map(x=>{let s=String(x??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');}
-  const api={FIELDS,READINESS_FIELDS,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
+  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.CREM=api;
 })(typeof window!=='undefined'?window:globalThis);
