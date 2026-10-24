@@ -1,5 +1,10 @@
 # LemonAId changelog
 
+## v0.7.1, 24 October 2026 (accession rule)
+- Only a repository identifier (GSE, GSM, E-MTAB, PRJNA, PRJEB, SRP, ERP, PXD, phs, EGA) counts as a public accession. Other text in the field is kept as recorded and flagged "Accession field holds other text, not an accession" (or "a publication reference"). New filter for those rows.
+- On the CReM registry this changes the headline: 17 projects with an accession, not 34; 17 rows (2025 to 2026) hold a person's name in geo_accession. Reach, readiness, the share plan's deposit step, the overview export and the graph export all use the rule; completeness now reports `accessionText`.
+- Engine exports `accessionOf`, `hasAccession`, `accessionNote`. Tests: 37.
+
 ## v0.7, 23 October 2026 (from Angie's review notes)
 - Reach labels defined on screen and in the overview; "Core only" renamed "Local only".
 - Readiness score shown for every project as a sortable column; rule printed; shortlist renamed "Closest to shareable, by what the inventory records".

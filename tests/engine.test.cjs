@@ -25,13 +25,23 @@ reg('registry fields map by default and the assay label drives classification',(
  assert.deepEqual(E.classify({experiment_type:'single-cell RNAseq Fluidigm',Dataset_Name:'',purpose_of_experiment:''}),['Fluidigm single-cell recorded']);
 });
 reg('completeness counts filled fields and public reach without double counting',()=>{
- const c=E.completeness(D.records,m);assert.equal(c.n,409);assert.ok(c.fields.purpose_of_experiment>400);assert.ok(c.fields.geo_accession>=30&&c.fields.geo_accession<=40);
+ const c=E.completeness(D.records,m);assert.equal(c.n,409);assert.ok(c.fields.purpose_of_experiment>400);assert.equal(c.fields.geo_accession,c.geo);assert.ok(c.geo>=15&&c.geo<=20,'only repository identifiers count: '+c.geo);assert.ok(c.accessionText>=15,'names in the accession field are counted separately: '+c.accessionText);
  assert.ok(c.viewer>c.geo);assert.ok(c.fields.Dataset_Name<c.fields.contact_person);
 });
 reg('describe-and-share use case is assay agnostic: no scope, flow, relation or matrix actions',()=>{
  const bulk=D.records.find(r=>r.raw.project_id==='24_09_16_Jonathan');const p=E.plan(bulk,m,{},'share',D.records);
  for(const id of ['scope','flow','relation','matrix','flow-model'])assert.ok(!has(p,id),id);assert.ok(has(p,'deposit'));assert.ok(has(p,'validate'));assert.equal(p.totalQuestions,6);
- const pub=D.records.find(r=>!E.missing(r.raw.geo_accession));assert.ok(!has(E.plan(pub,m,{},'share',D.records),'deposit'));
+ const pub=D.records.find(r=>E.accessionOf(r.raw.geo_accession));assert.ok(!has(E.plan(pub,m,{},'share',D.records),'deposit'));
+ const named=D.records.find(r=>!E.missing(r.raw.geo_accession)&&!E.accessionOf(r.raw.geo_accession));assert.ok(has(E.plan(named,m,{},'share',D.records),'deposit'),'a name in the accession field is not a deposit');
+});
+test('only repository identifiers count as accessions; other text is kept and flagged',()=>{
+ assert.equal(E.accessionOf(' GSE142246 '),'GSE142246');assert.equal(E.accessionOf('E-MTAB-8495'),'E-MTAB-8495');assert.equal(E.accessionOf('see PRJNA123456 and GSE1'),'PRJNA123456');
+ assert.equal(E.accessionOf('Porter Dooley'),'');assert.equal(E.accessionOf('NA'),'');
+ const named={geo_accession:'Porter Dooley',experiment_type:'10X scRNAseq',Dataset_Name:'',purpose_of_experiment:''};
+ assert.equal(E.hasAccession(named),false);assert.match(E.accessionNote(named),/other text/);assert.ok(E.classify(named).includes('Accession field holds other text, not an accession'));
+ assert.match(E.accessionNote({geo_accession:'Irit Milman Krentsis. PMID: 39178253'}),/publication reference/);
+ assert.equal(E.accessionNote({geo_accession:'GSE128922'}),'');assert.equal(E.accessionNote({geo_accession:'NA'}),'');
+ assert.equal(E.readiness({...named,project_date:'2026-01-01'}).shared,false);
 });
 test('CSV/TSV parser preserves quoted delimiters, escaped quotes, CRLF and multiline fields',()=>{
  const p=E.parseDelimited('\uFEFFid\tdescription\r\na\t"two\tfields and ""quotes""\nsecond line"\r\n');

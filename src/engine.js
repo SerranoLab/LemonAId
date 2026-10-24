@@ -25,6 +25,15 @@
   const clean = x=>String(x??'').trim();
   const missing = x=>!clean(x)||/^(na|n\/a|unknown|null)$/i.test(clean(x));
   const norm = x=>clean(x).toLowerCase().replace(/[^a-z0-9]/g,'');
+  // A public accession is a repository identifier. Any other text in the field (a person's name, a
+  // PMID, a note) is kept as recorded but does not count as deposition.
+  const ACCESSION_RE=/\b(GSE\d+|GSM\d+|E-MTAB-\d+|E-GEOD-\d+|PRJNA\d+|PRJEB\d+|PRJDB\d+|SRP\d+|ERP\d+|SRX\d+|PXD\d+|phs\d{6}(?:\.v\d+(?:\.p\d+)?)?|EGAS\d+|EGAD\d+|CRA\d+|HRA\d+)\b/i;
+  function accessionOf(v){const m=ACCESSION_RE.exec(clean(v));return m?m[1]:'';}
+  function hasAccession(p){return !!accessionOf(p.geo_accession);}
+  function accessionNote(p){
+    if(missing(p.geo_accession)||hasAccession(p))return '';
+    return /\bPMID\b|\bdoi\b|10\.\d{4,}/i.test(p.geo_accession)?'Accession field holds a publication reference, not an accession':'Accession field holds other text, not an accession';
+  }
   function suggestMap(headers){return Object.fromEntries(FIELDS.map(([k])=>[k,headers.find(h=>ALIASES[k].includes(norm(h)))||'']));}
   function canonical(record,map=DEFAULT_MAP){return Object.fromEntries(FIELDS.map(([k])=>[k,clean(record.raw[map[k]])]));}
   function parseDelimited(text,delimiter){
@@ -58,7 +67,8 @@
     rows.forEach((r,i)=>{if(r.length!==headers.length)throw Error(`Data row ${i+1} has ${r.length} fields; expected ${headers.length}. Check commas, tabs and quotes.`);});
     return {headers,rows:rows.map((r,i)=>({key:`import-${i+2}`,row:i+2,raw:Object.fromEntries(headers.map((h,j)=>[h,r[j]]))})),delimiter};
   }
-  function classify(p){
+  function classify(p){const tags=classifyAssay(p),n=accessionNote(p);if(n)tags.push(n);return tags;}
+  function classifyAssay(p){
     const text=(missing(p.experiment_type)?'':p.experiment_type+' ')+p.Dataset_Name+' '+p.purpose_of_experiment, tags=[];
     const a=missing(p.experiment_type)?'':p.experiment_type;
     const fluidigm=/fluidigm|\bc1\b/i.test(a);
@@ -115,7 +125,7 @@
     const recent=/^(202[3-9]|20[3-9]\d)/.test(p.project_date);
     const missingCtx=['Dataset_Name','contact_person','experiment_type','genome_reference'].filter(f=>missing(p[f]));
     const next=missingCtx.length?'Recover '+missingCtx.map(f=>({Dataset_Name:'name',contact_person:'contact',experiment_type:'assay type',genome_reference:'organism'})[f]).join(', '):'Locate files, confirm reuse terms, deposit';
-    return {score:ctx+(viewer?2:0)+(recent?1:0),viewer,recent,next,shared:!missing(p.geo_accession)};
+    return {score:ctx+(viewer?2:0)+(recent?1:0),viewer,recent,next,shared:hasAccession(p)};
   }
   function shortlist(records,map,n=10){
     return records.map(r=>{const p=canonical(r,map);return {record:r,p,...readiness(p)};}).filter(x=>!x.shared).sort((a,b)=>b.score-a.score||String(b.p.project_date).localeCompare(String(a.p.project_date))).slice(0,n);
@@ -125,8 +135,11 @@
     const n=records.length||1,out={};
     for(const f of READINESS_FIELDS)out[f]=records.filter(r=>!missing(clean(r.raw[map[f]])))?.length||0;
     const viewer=records.filter(r=>!missing(clean(r.raw[map.shinyapp_link]))||!missing(clean(r.raw[map.analysis_visualization_link]))).length;
-    const geo=records.filter(r=>!missing(clean(r.raw[map.geo_accession]))).length;
-    return {n:records.length,fields:out,viewer,geo,coreOnly:records.length-viewer-geo+records.filter(r=>!missing(clean(r.raw[map.geo_accession]))&&(!missing(clean(r.raw[map.shinyapp_link]))||!missing(clean(r.raw[map.analysis_visualization_link])))).length};
+    const acc=r=>!!accessionOf(r.raw[map.geo_accession]);
+    const geo=records.filter(acc).length;
+    const accessionText=records.filter(r=>!missing(clean(r.raw[map.geo_accession]))&&!acc(r)).length;
+    out.geo_accession=geo;
+    return {n:records.length,fields:out,viewer,geo,accessionText,coreOnly:records.length-viewer-geo+records.filter(r=>acc(r)&&(!missing(clean(r.raw[map.shinyapp_link]))||!missing(clean(r.raw[map.analysis_visualization_link])))).length};
   }
   function answer(answers,id){const a=answers[id];return a&&clean(a.evidence)?a.value:'unknown';}
   function validAnswers(answers={}){
@@ -156,7 +169,7 @@
     if(a('replicates')!=='yes')add('replicates','2 · Organize',a('replicates')==='confounded'?'Restrict claims under condition–batch confounding':'Resolve biological replication and batch structure','Do not count individual cells or flow events as independent biological replicates.','A design table with donor/line/run, condition, time point, library/acquisition batch, exclusions and analysis unit.','Project lead',['samples'], 'The design supports the claimed contrast; inseparable condition/batch effects are flagged and claims restricted.');
     if(a('provenance')!=='yes')add('provenance','2 · Organize','Capture processing and both types of QC','Processing history, biological QC and ingestion validation require separate records.','Software/version, parameters, reference, inputs/outputs, cell/feature and sample QC, flow controls/gates, exclusions and rationale.','Bioinformatician',['rna'], 'Processing can be traced to inputs and parameters; biological QC and structural checks are independently documented.');
     if(a('access')!=='yes')add('access','1 · First','Establish reuse permissions',a('access')==='restricted'?'Reuse authorization is still required.':'Viewer links do not establish licensing, consent or permitted reuse.','Permission/consent constraints, license, access tier, steward and intended-use decision.','Data steward',[], 'The responsible steward records an allowed use and any controls before reuse.');
-    if(goal==='share'&&missing(p.geo_accession))add('deposit','2 · Organize','Deposit or link the dataset in a public repository','No public accession is recorded for this project. A viewer is not a repository: it serves one analysis and cannot be cited, mirrored or reprocessed.','Submit raw and processed files with sample metadata to GEO/SRA (or the repository for the assay), then record the accession in the inventory.','Data custodian',['rna','samples','access'],'The accession resolves publicly and the inventory row carries it.');
+    if(goal==='share'&&!hasAccession(p))add('deposit','2 · Organize','Deposit or link the dataset in a public repository',(accessionNote(p)?accessionNote(p)+'. ':'No public accession is recorded for this project. ')+'A viewer is not a repository: it serves one analysis and cannot be cited, mirrored or reprocessed.','Submit raw and processed files with sample metadata to GEO/SRA (or the repository for the assay), then record the accession in the inventory.','Data custodian',['rna','samples','access'],'The accession resolves publicly and the inventory row carries it.');
     add('validate','3 · Validate','Validate the assembled package against the intended use','Answers here are user-reported planning evidence. The prototype has not inspected assay files or certified readiness.','Check required fields, unique keys, referential integrity, matrix dimensions, biological design, cross-assay evidence, QC, access and provenance; produce a reviewed exception log.','Data steward',actions.map(x=>x.id),'A scientist and data steward review actual files and resolve or explicitly exclude every blocking exception.');
     actions.sort((a,b)=>a.priority.localeCompare(b.priority));
     // Only show live dependencies; a supplied prerequisite is retained in the question evidence.
@@ -198,7 +211,7 @@
     return 'recorded';
   }
   // Normalisation: proposed controlled term per distinct source string, for assay and organism.
-  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=classify(p).filter(x=>!/confirm|disagree/.test(x));return t.length?t[0].replace(/ (recorded|stated)$/,''):'';}},
+  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=classify(p).filter(x=>!/confirm|disagree|Accession field/.test(x));return t.length?t[0].replace(/ (recorded|stated)$/,''):'';}},
                       genome_reference:{label:'Organism',ontology:'NCBITaxon',namespace:'NCBITaxon:',biolink:'biolink:OrganismTaxon',propose:p=>{const o=species(p).organism;return o==='Unknown'||o==='Unresolved'?'':o;}}};
   function normTable(records,map,overrides={}){
     const out={};
@@ -281,7 +294,8 @@
       if(!missing(p.experiment_type)){const term=termFor(norm,'experiment_type',p.experiment_type)||p.experiment_type;const aid=node('assay:'+slug(term),'Assay',term,{biolink_category:'biolink:Procedure',ontology:'OBI/EFO (to resolve)'});edge(pid,'HAS_ASSAY',aid,term===p.experiment_type?'recorded':normProv('experiment_type',p.experiment_type),src,'source string: '+p.experiment_type);}
       if(!missing(p.reporters)){const rid=node('reporter:'+slug(p.reporters).slice(0,60),'ReporterDescription',p.reporters,{biolink_category:'biolink:InformationContentEntity'});edge(pid,'USES_REPORTER',rid,'recorded',src,'free text; resolve to iPSC line and gene symbols at sample ingest');}
       for(const [f,role] of [['shinyapp_link','Shiny viewer'],['analysis_visualization_link','Interactive viewer']])if(!missing(p[f]))for(const u of p[f].split(/;\s*/)){const did=node('resource:'+slug(u).slice(0,80),'DataResource',u,{biolink_category:'biolink:InformationResource',role});edge(pid,'HAS_RESOURCE',did,'recorded',src);}
-      if(!missing(p.geo_accession)){const gid=node('accession:'+slug(p.geo_accession),'DataResource',p.geo_accession,{biolink_category:'biolink:InformationResource',role:'Public repository accession'});edge(pid,'DEPOSITED_AS',gid,'recorded',src);}
+      const acc=accessionOf(p.geo_accession);
+      if(acc){const gid=node('accession:'+slug(acc),'DataResource',acc,{biolink_category:'biolink:InformationResource',role:'Public repository accession'});edge(pid,'DEPOSITED_AS',gid,'recorded',src);}
       // panel manifest: data files and the reagents their headers name
       const man=rev.validation&&rev.validation.panel?parseManifest(rev.validation.panel):[];
       const seenFiles=new Set();
@@ -391,6 +405,6 @@
   }
 
   function csv(rows){return rows.map(r=>r.map(x=>{let s=String(x??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');}
-  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
+  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.CREM=api;
 })(typeof window!=='undefined'?window:globalThis);
