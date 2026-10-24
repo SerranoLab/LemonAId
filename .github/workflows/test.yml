@@ -16,7 +16,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python3 -m py_compile tools/fcs_panel_manifest.py
+      - run: python3 -m py_compile tools/fcs_panel_manifest.py tools/lookup_public.py
+      - run: python3 tools/lookup_public.py tests/fixtures/lookup_inventory.tsv --out /tmp/lookup && grep -q 'Accession mentioned in another field, none recorded: 2' /tmp/lookup/lookup_summary.md
       - name: standalone build has no external dependencies
         run: |
           ! grep -q '<script[^>]*src=' dist/LemonAId.html

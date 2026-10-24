@@ -1,0 +1,7 @@
+Lab_PI	project_id	Dataset_Name	project_date	contact_person	experiment_type	purpose_of_experiment	geo_accession	category
+Example Lab	24_01_01_a	Deposited set	2024-01-01	A. Person	10X scRNAseq	Own data.	GSE100001	Investigator
+Example Lab	24_02_01_b	GSE100002	2024-02-01	B. Person	Bulk RNA-seq	Re-analysis of a public dataset.	NA	Investigator
+Example Lab	24_03_01_c	Own set, never deposited	2024-03-01	C. Person	10X scRNAseq	See PRJNA100003 for the raw reads.	NA	Investigator
+Example Lab	25_04_01_d	Recent set	2025-04-01	D. Person	10X scRNAseq	Own data.	D. Person	Investigator
+Example Lab	25_05_01_e	Published set	2025-05-01	E. Person	Bulk RNA-seq	Own data.	PMID: 12345678	Investigator
+Other Lab	22_06_01_f	Public reanalysis	2022-06-01	F. Person	10X scRNAseq	Reanalysis of GSE100006.	NA	Public data reanalysis

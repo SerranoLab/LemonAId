@@ -15,7 +15,7 @@ Exports: a readable report and action list per project; an inventory overview an
 
 ## Start in five minutes
 
-1. Download `dist/LemonAId.html` and open it in Chrome, Safari, Firefox or Edge. No install, no server, no account. Nothing is sent anywhere. (`dist/index.html` is the same page, kept so the `dist` folder can be served directly, for example by GitHub Pages.)
+1. Download `dist/LemonAId.html` and open it in Chrome, Safari, Firefox or Edge. No install, no server, no account. Nothing is sent anywhere.
 2. Click **Import inventory** and choose a CSV or TSV with one row per project. Three columns are enough to start: a project ID, a name, a date. Any column names work; you match them on the next screen.
 3. Read screen 01. Then pick one project, answer one question with evidence on screen 03, and watch the plan on screen 04 change.
 4. **Export plan → Save a resumable session** before you close the browser. Notes live in the browser that opened the file; the session file is how they travel.
@@ -27,9 +27,10 @@ Exports: a readable report and action list per project; an inventory overview an
 ```
 node tools/validate_samplesheet.cjs <sample_sheet.tsv> <project_dir> [--exclude f] [--md5 f --verify-md5] [--out dir]
 python3 tools/fcs_panel_manifest.py <project_dir> --reagents data/reagents.json [--out dir]
+python3 tools/lookup_public.py <inventory.tsv|.xlsx> [--sheet name] [--out dir] [--ncbi]
 ```
 
-The first walks a real project folder, checks the sample sheet against it with the same rules as the app, and writes `report.md` and `checks.csv`. The second reads only the header of each FCS file (never the events), lists every stained channel's detector and label, and matches labels to a reagent inventory. Both read only.
+The first walks a real project folder, checks the sample sheet against it with the same rules as the app, and writes `report.md` and `checks.csv`. The second reads only the header of each FCS file (never the events), lists every stained channel's detector and label, and matches labels to a reagent inventory. The third finds public records the inventory never wrote down: accessions and publication identifiers hidden in other fields (offline), and, with `--ncbi`, GEO series by the same submitter matched by year and words. Everything it finds is a candidate for a person to confirm. All three are read only.
 
 ## Build
 
