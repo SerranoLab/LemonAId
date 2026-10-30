@@ -51,11 +51,11 @@ node --test tests/engine.test.cjs tests/app.test.cjs
 
 ## Provenance vocabulary
 
-Every edge in the graph export carries one of: `recorded` (in the source inventory), `inferred` (derived by the inventory's compiler), `absent`, `normalised` (controlled term proposed by LemonAId; source string kept as evidence), `user_reported` (an answer with evidence on screen 03), `file_header` (read from an FCS header, marker and fluorochrome agree), `proposed` (header label plus detector convention), `candidate` (marker only; a person chooses).
+Every edge in the graph export carries one of: `recorded` (in the source inventory), `inferred` (derived by the inventory's compiler), `absent`, `normalised` (controlled term proposed by LemonAId; source string kept as evidence), `reviewed` (a normalised term confirmed by a named reviewer), `user_reported` (an answer with evidence on screen 03), `file_header` (read from an FCS header, marker and fluorochrome agree), `proposed` (header label plus detector convention), `candidate` (marker only; a person chooses).
 
 ## Tests
 
-36 tests on Node's built-in runner. Eighteen run everywhere; eighteen need the private CReM registry and skip when it is absent. Fixtures are two real sample sheets (a KMT2D-dTAG CUT&RUN run and a 2019 zebrafish EdU flow experiment) and one real panel manifest from FCS headers.
+37 tests on Node's built-in runner. Nineteen run everywhere; eighteen need the private CReM registry and skip when it is absent. Fixtures are two real sample sheets (a KMT2D-dTAG CUT&RUN run and a 2019 zebrafish EdU flow experiment) and one real panel manifest from FCS headers.
 
 ## Citation, licence and credits
 
