@@ -3,6 +3,15 @@
 One entry per decision. Newest first. Format: date, decision, who, why, what it changed.
 A decision that is not here was not made.
 
+## 2026-10-30. Screen 01 wording
+Decided: Angie. Headline: "Make your lab's data easier to find and reuse." Body: "Start with the project list
+your lab already keeps. LemonAId highlights what's documented, what information is missing, and what to do next."
+The privacy line is separate, below the import control, and is kept only while it is verifiably true (CI asserts
+no external resources; the app has no network calls, no analytics, no AI processing). The brand promise
+"Start with what you have, then make the next step clear" stays as the broader line. Rationale: the tool reads
+records, so it flags missing information in records rather than judging datasets; discoverability and reuse
+are the goal, not a threat.
+
 ## 2026-10-30. Separate droplet for LemonAId (Option B)
 Decided: Angie. LemonAId is served from its own 1 GB DigitalOcean droplet, not from the EpiFlow D3 droplet,
 so a LemonAId deploy can never touch EpiFlow's nginx or containers. deploy/DEPLOYMENT.md Option B is the procedure.
