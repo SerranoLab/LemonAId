@@ -49,6 +49,15 @@ node --test tests/engine.test.cjs tests/app.test.cjs
 - No reading of event data from FCS or alignments from BAM. Those belong to analysis pipelines; LemonAId records what they found.
 - No center's project inventory. This repository ships the app, the rules, the tools, the reagent catalogue and two real validation fixtures from the Serrano Lab. The CReM Bioinformatics Core registry is not public.
 
+## Sustainability
+
+LemonAId is maintained by the CReM Bioinformatics Core with the Serrano Lab as backup (see `docs/ROADMAP.md`
+for the milestones and `docs/GOVERNANCE.md` for who may hold what). Every release is archived on Zenodo with
+a DOI. If maintenance ever stops: the licence is MIT, so anyone may fork; the app is one file with no
+dependencies and no server, so it keeps opening in any browser; sessions and exports are plain JSON and CSV,
+so nothing is locked in. This statement is about the software. Each lab's datasets are governed by that
+lab's own data management and sharing plan.
+
 ## Provenance vocabulary
 
 Every edge in the graph export carries one of: `recorded` (in the source inventory), `inferred` (derived by the inventory's compiler), `absent`, `normalised` (controlled term proposed by LemonAId; source string kept as evidence), `reviewed` (a normalised term confirmed by a named reviewer), `user_reported` (an answer with evidence on screen 03), `file_header` (read from an FCS header, marker and fluorochrome agree), `proposed` (header label plus detector convention), `candidate` (marker only; a person chooses).
