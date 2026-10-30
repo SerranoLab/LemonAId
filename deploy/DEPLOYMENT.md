@@ -42,10 +42,15 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    `https://localhost:8443/LemonAId.html` with no Content-Security-Policy errors in the console.
    Stop with `deploy/local-test.sh stop`.
 1. **Create the droplet** (Angie, cloud.digitalocean.com). Ubuntu 24.04 LTS, Basic, Regular SSD,
-   1 GB, SSH key authentication (not password), the same region as the EpiFlow droplet, hostname
-   `lemonaid`. Proof (Mac): `ssh root@IP` logs in without asking for a password.
-2. **DNS** (Angie, DigitalOcean Networking, Domains, serranolab.org). Add an A record, hostname
-   `lemonaid`, pointing at the new droplet, TTL 3600. Proof (Mac):
+   1 GB, $6 a month, SSH key authentication (not password), hostname `lemonaid`, project LemonAId. Any
+   region that offers the Basic plan; on 30 October 2026 NYC3 (EpiFlow's) offered none, so NYC1 was used.
+   Take the image from the OS tab: the Backups tab would clone EpiFlow and the Agents tab preselects an
+   agent image. Check the Summary panel before creating. Proof (Mac): `ssh root@IP` logs in without asking for a password.
+2. **DNS** (Angie, at Porkbun: the registrar and DNS host for serranolab.org, not DigitalOcean;
+   `dig +short NS serranolab.org` shows `*.ns.porkbun.com`). Account, Domain Management, serranolab.org,
+   DNS. Add an A record, host `lemonaid`, answer the droplet's IP, TTL 600. Leave the other records alone;
+   a wildcard `*.serranolab.org` points unknown names at Porkbun's parking page, and the specific record
+   takes precedence over it. Proof (Mac):
    `dig +short lemonaid.serranolab.org` returns the droplet's IP.
 3. **Harden** (droplet):
    `apt update && apt upgrade -y && apt install -y nginx certbot ufw`
@@ -73,8 +78,10 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    Let's Encrypt no longer emails before a certificate expires, so step 8 also reads the expiry date:
    `echo | openssl s_client -connect lemonaid.serranolab.org:443 -servername lemonaid.serranolab.org 2>/dev/null | openssl x509 -noout -enddate`
    should always be 30 or more days away (certbot renews at 30 days left).
-   Before the first deploy, `/LemonAId.html` itself returns 404; that is expected. Gate proof: the
-   same `curl -I` from a phone hotspot or any network outside BU returns `403`.
+   Before the first deploy, `/LemonAId.html` itself returns 404; that is expected. Gate proof:
+   `curl -sI https://lemonaid.serranolab.org/LemonAId.html` from a phone hotspot or any network outside BU
+   returns `403`. The bare address returns 302 to everyone, because nginx answers a redirect before it
+   checks the gate; the gate guards the files, which is everything there is to see.
 7. **First deploy** (Angie, on the Mac, from a clean checkout of the tag):
    `git checkout v0.8.0 && deploy/deploy.sh v0.8.0 root@lemonaid.serranolab.org`
    Proof: the script prints `ok`, the tag and the SHA-256; the same SHA-256 is in the GitHub Release;

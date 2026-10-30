@@ -72,6 +72,7 @@ check "app file: Cache-Control no-cache"              'grep -qi "^cache-control:
 check "served file matches the build (SHA-256)"       '[[ "$BODY" == "$SHA" ]]'
 check "VERSION names the same SHA-256"                '[[ "$VER" == *"$SHA"* ]]'
 check "anything else is 404 (src/data.js)"            '[[ "$MISS" == 404 ]]'
+check "server header hides the nginx version"        'grep -qi "^server: nginx$" <<<"$APPH"'
 
 # Close the gate to everyone, including this machine: the app must answer 403, and the
 # certificate path on port 80 must still be reachable (404 here, because no challenge file exists).

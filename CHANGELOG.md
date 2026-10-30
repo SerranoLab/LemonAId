@@ -1,6 +1,7 @@
 # LemonAId changelog
 
 ## Unreleased
+- deploy: corrections from the first real run (30 October): DNS is at Porkbun; any region with the Basic plan (NYC1 used); the gate is proved on /LemonAId.html (the bare address redirects before the gate is checked); nginx no longer advertises its version (server_tokens off), checked by the local test.
 - deploy: an access gate (an include file that lives only on the server) keeps the site visible from BU only until the v0.8.0 review; port 80 stays open for certificate renewal; the local test checks both the allowed and the closed state.
 - deploy: certificate renewal is proved, not assumed: the renewal config (webroot, reload hook) and a dry run are step 6 proofs, and the served expiry date is read in the hand check (Let's Encrypt no longer emails before expiry).
 - deploy/local-test.sh: serves the build locally through the droplet's own server blocks (ports 8080/8443, self-signed certificate) and checks redirects, security headers, checksum and 404 before anything is deployed.
