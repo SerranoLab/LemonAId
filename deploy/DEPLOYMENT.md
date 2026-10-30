@@ -32,25 +32,31 @@ Decision: Option B unless the 6 USD a month is a problem; recorded in docs/DECIS
 ## Option B, step by step
 
 Each step says who does it and what proves it worked. Do them in order; do not skip the proof.
+The droplet comes before DNS because the DNS record needs the droplet's IP. Commands marked
+"Mac" run in a terminal in this repository; commands marked "droplet" run after `ssh root@IP`.
 
-1. **DNS** (Angie, at the registrar for serranolab.org). Add an A record `lemonaid` pointing at the new
-   droplet's IP. Proof: `dig +short lemonaid.serranolab.org` returns the IP.
-2. **Create the droplet** (Angie, cloud.digitalocean.com). Ubuntu 24.04 LTS, Basic, 1 GB, SSH key
-   authentication (not password), the same region as the EpiFlow droplet. Proof: `ssh root@IP` works.
-3. **Harden** (Angie, on the droplet):
-   `apt update && apt upgrade -y && apt install -y nginx certbot python3-certbot-nginx ufw`
+1. **Create the droplet** (Angie, cloud.digitalocean.com). Ubuntu 24.04 LTS, Basic, Regular SSD,
+   1 GB, SSH key authentication (not password), the same region as the EpiFlow droplet, hostname
+   `lemonaid`. Proof (Mac): `ssh root@IP` logs in without asking for a password.
+2. **DNS** (Angie, DigitalOcean Networking, Domains, serranolab.org). Add an A record, hostname
+   `lemonaid`, pointing at the new droplet, TTL 3600. Proof (Mac):
+   `dig +short lemonaid.serranolab.org` returns the droplet's IP.
+3. **Harden** (droplet):
+   `apt update && apt upgrade -y && apt install -y nginx certbot ufw`
    `ufw allow OpenSSH && ufw allow 'Nginx Full' && ufw --force enable`
-   Proof: `ufw status` shows only 22, 80, 443.
-4. **Directories** (Angie, on the droplet):
+   Proof: `ufw status` lists only OpenSSH (22) and Nginx Full (80, 443), each for v4 and v6.
+4. **Directories** (droplet):
    `mkdir -p /var/www/lemonaid/releases /var/www/certbot && chown -R www-data:www-data /var/www/lemonaid`
-5. **nginx** (Angie, on the droplet). Copy `deploy/lemonaid.serranolab.org.conf` to
-   `/etc/nginx/sites-available/`, symlink into `sites-enabled`, remove the `default` site. Temporarily
-   comment out the two `ssl_certificate` lines and the 443 block, run `nginx -t && systemctl reload nginx`.
-   Proof: `curl -I http://lemonaid.serranolab.org` returns a 301.
-6. **Certificate** (Angie, on the droplet): `certbot --nginx -d lemonaid.serranolab.org`. Restore the
-   443 block (certbot writes the ssl lines). `nginx -t && systemctl reload nginx`.
-   Proof: `curl -I https://lemonaid.serranolab.org` returns a 302 to /LemonAId.html, and
-   `systemctl list-timers | grep certbot` shows the renewal timer.
+5. **nginx, port 80 only** (Mac, then droplet). Mac:
+   `scp deploy/lemonaid.serranolab.org.bootstrap.conf deploy/lemonaid.serranolab.org.conf root@IP:/etc/nginx/sites-available/`
+   Droplet: `rm /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/lemonaid.serranolab.org.bootstrap.conf /etc/nginx/sites-enabled/lemonaid && nginx -t && systemctl reload nginx`
+   Proof (Mac): `curl -I http://lemonaid.serranolab.org` returns `301` to https.
+6. **Certificate and full config** (droplet). Webroot mode: certbot never edits the nginx files.
+   `certbot certonly --webroot -w /var/www/certbot -d lemonaid.serranolab.org -m maserr@bu.edu --agree-tos -n --deploy-hook "systemctl reload nginx"`
+   `ln -sfn /etc/nginx/sites-available/lemonaid.serranolab.org.conf /etc/nginx/sites-enabled/lemonaid && nginx -t && systemctl reload nginx`
+   Proof: `systemctl list-timers | grep certbot` shows the renewal timer; `certbot renew --dry-run`
+   succeeds; (Mac) `curl -I https://lemonaid.serranolab.org` returns `302` to `/LemonAId.html`.
+   Before the first deploy, `/LemonAId.html` itself returns 404; that is expected.
 7. **First deploy** (Angie, on the Mac, from a clean checkout of the tag):
    `git checkout v0.8.0 && deploy/deploy.sh v0.8.0 root@lemonaid.serranolab.org`
    Proof: the script prints `ok`, the tag and the SHA-256; the same SHA-256 is in the GitHub Release;

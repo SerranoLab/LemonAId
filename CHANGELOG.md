@@ -1,5 +1,8 @@
 # LemonAId changelog
 
+## Unreleased
+- deploy: the app file (/LemonAId.html) is now served with the security headers (CSP, HSTS, nosniff, Referrer-Policy); nginx had been dropping them in that location. Droplet before DNS in the procedure; certificate by webroot, so certbot never edits the nginx file.
+
 ## 30 October 2026 (Phase 0 decisions applied; no code change)
 - Licence changed from BSD-2-Clause to MIT (LICENSE, CITATION.cff, README).
 - CITATION.cff: version 0.7.1, ORCID for M.A. Serrano, abstract mentions the lookup tool and the Biolink-aligned export.
