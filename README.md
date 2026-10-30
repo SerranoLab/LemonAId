@@ -42,6 +42,16 @@ node --test tests/engine.test.cjs tests/app.test.cjs
 
 `src/data.blank.js` shows the embedded-inventory format; `docs/inventory-format.md` describes the columns. `data/reagents.json` is the Serrano Lab [EpiFlow Panel Builder](https://github.com/SerranoLab/EpiFlow_Builder) inventory (267 reagents) and is embedded in every build; replace it with your own export.
 
+## Why the name
+
+If life gives you lemons, make lemonade. The lemons are what every lab already has: the ordering spreadsheet, the screenshots, the slide with the lane labels, the sample sheet one trainee keeps. The lemonade is a map of what is known, what is missing, and what to do next. The capital AI in the middle says where the map leads, and the first question the tool asks is the brand kit's: AI-ready for what?
+
+## What already exists, and where LemonAId sits
+
+We surveyed four families of tools in October 2026 (`docs/landscape_2026-10-30.md`). FAIR assessors (F-UJI, FAIR-Checker, FAIRshake) score a record that already has a DOI. Data-management-plan engines (DSW, DMPTool, ARGOS) turn questionnaire answers into a plan document and never look at the data afterwards. Electronic notebooks and LIMS (eLabFTW, RSpace, openBIS, SEEK) link samples to files only for files entered through them, and most academic labs use none. Knowledge-graph projects (Biolink, BioCypher, OptimusKG, HuBMAP, CELLxGENE) validate at intake and expect provenance on every edge. None of them starts from the project list a lab already keeps, checks the files on the lab's own server against it, and returns a plan with an owner and an evidence requirement per item. That is the step LemonAId performs, before deposit, before any notebook, before the graph.
+
+LemonAId does not duplicate any of those layers. It adopts their rubrics (the RDA FAIR Data Maturity levels, the NIH Bridge2AI criteria), their formats (RDA machine-actionable DMP, RO-Crate and `.eln`, Frictionless Table Schema) and their identifiers (infores, ORCID, ROR, RRID, Biolink CURIEs), so what it produces flows into them: a validator report attaches as evidence, a ready project hands off to FAIRSCAPE for packaging, the graph export loads through a BioCypher adapter. The table in `docs/landscape_2026-10-30.md` lists the synergy per tool.
+
 ## What is deliberately not here
 
 - No hosted service and no network calls. Local-first is a feature for consent, cost and adoption.
