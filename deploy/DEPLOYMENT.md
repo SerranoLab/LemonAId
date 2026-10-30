@@ -35,6 +35,12 @@ Each step says who does it and what proves it worked. Do them in order; do not s
 The droplet comes before DNS because the DNS record needs the droplet's IP. Commands marked
 "Mac" run in a terminal in this repository; commands marked "droplet" run after `ssh root@IP`.
 
+0. **Local test** (Angie, on the Mac, before any server step): `brew install nginx` once, then
+   `deploy/local-test.sh`. It serves the build through this folder's server blocks on ports 8080 and
+   8443 with a self-signed certificate and checks the redirects, the security headers on the app file,
+   the checksum and the 404. Proof: every line says PASS; the five journeys work in the browser at
+   `https://localhost:8443/LemonAId.html` with no Content-Security-Policy errors in the console.
+   Stop with `deploy/local-test.sh stop`.
 1. **Create the droplet** (Angie, cloud.digitalocean.com). Ubuntu 24.04 LTS, Basic, Regular SSD,
    1 GB, SSH key authentication (not password), the same region as the EpiFlow droplet, hostname
    `lemonaid`. Proof (Mac): `ssh root@IP` logs in without asking for a password.
