@@ -3,6 +3,21 @@
 One entry per decision. Newest first. Format: date, decision, who, why, what it changed.
 A decision that is not here was not made.
 
+## 2026-10-30. Separate droplet for LemonAId (Option B)
+Decided: Angie. LemonAId is served from its own 1 GB DigitalOcean droplet, not from the EpiFlow D3 droplet,
+so a LemonAId deploy can never touch EpiFlow's nginx or containers. deploy/DEPLOYMENT.md Option B is the procedure.
+
+## 2026-10-30. Scope answers on the "still missing" list
+Decided: Angie.
+- One-sentence purpose on the first screen: yes. No named reader persona.
+- Comparison with existing tools (DSW, RDMkit, FAIR-Checker, FAIRshake, ELN/LIMS): yes, with a synergy assessment; goes into README and the paper.
+- Spanish interface: deferred until the tool is proven; a strings file is not started yet.
+- Demo mode (one click, example inventory, no import): yes, v0.8.
+- Undo and a "what changed since my last session" view: yes, v0.8, built on the file-backed session history.
+- Measured cost (minutes per project) during the pilot: yes, local-only timing written into the session file, never sent anywhere.
+- Hand-off view for a departing trainee: yes, v0.9.
+- Governance charter and sustainability statement: to be drafted; no password accounts (see 2026-10-30 note on accounts when written).
+
 ## 2026-10-30. Beta criteria and milestones
 Decided: Angie. The eight readiness items and three milestones in docs/ROADMAP.md define "beta".
 Nothing is tagged beta until all eight are closed and each is checked by someone other than the builder.

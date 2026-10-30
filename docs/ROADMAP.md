@@ -48,6 +48,10 @@ Scope: the four engineering items the audit put first, plus error handling and a
 | Error handling | Ten malformed inputs (empty file, no header, wrong delimiter, Latin-1, 50 MB, duplicate IDs, binary file, mismatched columns, unknown date formats, a file of only headers) each produce a visible message and leave the session unchanged; all ten are tests | Angie | Test run in CI |
 | End-to-end test | Playwright drives the blank build through the five journeys (import, review, answer with evidence, validate a sheet, export) in Chromium and WebKit; runs in CI | Angie | CI |
 | Export round trip | Export a session, clear the browser, import it: identical state, tested | Angie | CI |
+| Purpose sentence | One sentence on screen 01, above the tiles, says what the tool is for and that nothing leaves the machine | Angie | A stranger reads it and says it back correctly |
+| Demo mode | A "Try it with the example inventory" button on the empty state loads examples/serrano_lab_projects_2026-10-21.csv; one click, no file dialog | Angie | Sandeep |
+| Undo and session diff | Undo the last answer, note or normalisation edit; a "Since last save" panel lists what changed, from the session history | Angie | Sandeep |
+| Local timing | Each project's time in focus is recorded in the session file (start, end, screen); a "Time spent" export per project; nothing leaves the machine; off by default, on for the pilot | Angie | Carlos reads the pilot numbers |
 
 Gate: all rows checked; CI green on `main`; CHANGELOG written; tag `v0.8.0`.
 
@@ -63,7 +67,10 @@ Scope: the building blocks specified in the review pack (tab C), the vocabulary 
 | Flow gold reader | Runs on Exp 9.102; sample sheet, statistics export, FCS headers, controls, gold table | Engineer or Angie | Sandeep |
 | CURIEs and term lists | Bundled term lists (NCBITaxon, CL, OBI, EFO, MONDO, HGNC) for the terms in use; the normalisation table proposes CURIE plus label; ontology versions recorded | Angie | Carlos |
 | PROV-O mapping | Beside the Biolink columns in docs/provenance.md | Angie | Carlos |
-| Core intake pilot | Lauren's project goes through the reader with Carlos present; report and graph export accepted without editing | Carlos, Angie | Carlos signs the report |
+| Core intake pilot | Lauren's project goes through the reader with Carlos present; report and graph export accepted without editing; minutes per project reported from the local timing | Carlos, Angie | Carlos signs the report |
+| Hand-off view | One page per person: every open question, missing evidence and unresolved normalisation on their projects; exportable as the report | Angie | A departing trainee uses it |
+| Governance charter and sustainability statement | docs/GOVERNANCE.md and a Sustainability section in the README, reviewed by Carlos and Darrell | Angie | Darrell |
+| Comparison with existing tools | README section and paper section: what DSW, RDMkit, FAIR-Checker, FAIRshake and ELN/LIMS do, where LemonAId sits, how they connect | Angie | Carlos |
 
 Gate: pilot report signed; two Serrano projects end to end; tag `v0.9.0`.
 
