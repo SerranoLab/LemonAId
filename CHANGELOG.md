@@ -1,5 +1,10 @@
 # LemonAId changelog
 
+## 30 October 2026 (Phase 0 decisions applied; no code change)
+- Licence changed from BSD-2-Clause to MIT (LICENSE, CITATION.cff, README).
+- CITATION.cff: version 0.7.1, ORCID for M.A. Serrano, abstract mentions the lookup tool and the Biolink-aligned export.
+- README: credits for the CReM Bioinformatics Core, Darrell N. Kotton and Gustavo Mostoslavsky; maintainer named (the Core, Serrano Lab as backup); tool credits (Codex, Claude) with the accountability sentence; the session-export note says notes stay in one browser on one machine until file-backed sessions arrive.
+
 ## v0.7.1, 24 October 2026 (accession rule)
 - Only a repository identifier (GSE, GSM, E-MTAB, PRJNA, PRJEB, SRP, ERP, PXD, phs, EGA) counts as a public accession. Other text in the field is kept as recorded and flagged "Accession field holds other text, not an accession" (or "a publication reference"). New filter for those rows.
 - On the CReM registry this changes the headline: 17 projects with an accession, not 34; 17 rows (2025 to 2026) hold a person's name in geo_accession. Reach, readiness, the share plan's deposit step, the overview export and the graph export all use the rule; completeness now reports `accessionText`.

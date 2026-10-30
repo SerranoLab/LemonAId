@@ -2,9 +2,9 @@ cff-version: 1.2.0
 message: "If you use LemonAId, please cite it as below."
 title: "LemonAId: a local data-readiness planner for research laboratories"
 type: software
-version: "0.6"
-date-released: "2026-10-22"
-license: BSD-2-Clause
+version: "0.7.1"
+date-released: "2026-10-24"
+license: MIT
 repository-code: "https://github.com/SerranoLab/LemonAId"
 abstract: >-
   A single-file, local web application that takes a laboratory's project
@@ -12,14 +12,18 @@ abstract: >-
   inventory lacks, which projects are closest to shareable, and the evidence-
   backed checks needed before data can be found and reused. Includes a
   sample-sheet validator, an FCS header reader matched to a reagent inventory,
-  and a graph export with provenance on every edge.
+  an offline lookup for accessions and publication identifiers the inventory
+  never recorded, and a Biolink-aligned graph export with provenance on every
+  edge.
 authors:
   - family-names: Serrano
     given-names: Maria A.
+    orcid: "https://orcid.org/0000-0002-4318-3746"
     email: maserr@bu.edu
     affiliation: "Center for Regenerative Medicine, Boston University Chobanian & Avedisian School of Medicine"
   - family-names: Villacorta Martin
     given-names: Carlos
+    # orcid: pending
     affiliation: "Bioinformatics Core, Center for Regenerative Medicine, Boston University"
 keywords:
   - data readiness
@@ -28,3 +32,8 @@ keywords:
   - provenance
   - flow cytometry
   - single-cell genomics
+# doi: 10.5281/zenodo.XXXXXXX   <- add the Zenodo concept DOI once the first release is deposited
+# Paper authors (to become preferred-citation once published): Carlos Villacorta Martin,
+# Gustavo Mostoslavsky (https://orcid.org/0000-0002-0784-2169),
+# Darrell N. Kotton (https://orcid.org/0000-0002-9604-8476),
+# Maria A. Serrano (https://orcid.org/0000-0002-4318-3746), senior author.

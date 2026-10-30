@@ -2,7 +2,7 @@
 
 **Your data. A clearer path.** A local, single-file planner that takes the project inventory a lab already keeps and turns it into a picture of what the lab has, what is missing, and the checks that make each dataset findable and reusable by others.
 
-Center for Regenerative Medicine, Boston University · v0.6 · October 2026
+Center for Regenerative Medicine, Boston University · v0.7.1 · October 2026
 
 ## What it does
 
@@ -18,7 +18,7 @@ Exports: a readable report and action list per project; an inventory overview an
 1. Download `dist/LemonAId.html` and open it in Chrome, Safari, Firefox or Edge. No install, no server, no account. Nothing is sent anywhere.
 2. Click **Import inventory** and choose a CSV or TSV with one row per project. Three columns are enough to start: a project ID, a name, a date. Any column names work; you match them on the next screen.
 3. Read screen 01. Then pick one project, answer one question with evidence on screen 03, and watch the plan on screen 04 change.
-4. **Export plan → Save a resumable session** before you close the browser. Notes live in the browser that opened the file; the session file is how they travel.
+4. **Export plan → Save a resumable session** before you close the browser. Notes live in the browser that opened the file, on that machine only; the session file is how they travel and how they survive a cleared browser. File-backed sessions with history are the first item of the next phase.
 
 `examples/serrano_lab_projects_2026-10-21.csv` is a real 49-project inventory to try, with inferred fields marked as such.
 
@@ -57,8 +57,10 @@ Every edge in the graph export carries one of: `recorded` (in the source invento
 
 36 tests on Node's built-in runner. Eighteen run everywhere; eighteen need the private CReM registry and skip when it is absent. Fixtures are two real sample sheets (a KMT2D-dTAG CUT&RUN run and a 2019 zebrafish EdU flow experiment) and one real panel manifest from FCS headers.
 
-## Citation and licence
+## Citation, licence and credits
 
-BSD-2-Clause, © 2026 M.A. Serrano, Center for Regenerative Medicine, Boston University Chobanian & Avedisian School of Medicine. See `CITATION.cff`.
+MIT licence, © 2026 M.A. Serrano, Center for Regenerative Medicine, Boston University Chobanian & Avedisian School of Medicine. Software citation in `CITATION.cff` (Serrano and Villacorta Martin). A Zenodo DOI will be added at the first release.
 
-Built with Carlos Villacorta Martin (CReM Bioinformatics Core) in the context of the CReM knowledge graph. Initial prototype by OpenAI Codex (October 2026); v0.2 onward developed with Claude.
+LemonAId grew out of the CReM knowledge graph (CReM-KG) planned by the CReM Bioinformatics Core. Carlos Villacorta Martin (Bioinformatics Core) co-designed the readiness questions, the intake sheet and the graph export. Darrell N. Kotton and Gustavo Mostoslavsky, CReM leadership, set the center-level questions the tool measures against. The CReM Bioinformatics Core is the intended maintainer, with the Serrano Lab as backup.
+
+Tools: the initial prototype (v0.1, October 2026) was written with OpenAI Codex; v0.2 onward was developed with Claude (Anthropic), which drafted code, tests and documentation. Every design decision, rule and number was reviewed and is owned by the authors.
