@@ -1,6 +1,7 @@
 # LemonAId changelog
 
 ## Unreleased
+- deploy.sh --rollback now verifies the served checksum and logs a line, like a deploy; it used to exit before logging. The script refuses to run when git user.name is empty. The clean-tree check ignores deploy/DEPLOY_LOG.md only, so a second deploy of the same tag (the rollback drill) is possible.
 - deploy: the app file (/LemonAId.html) is now served with the security headers (CSP, HSTS, nosniff, Referrer-Policy); nginx had been dropping them in that location. Droplet before DNS in the procedure; certificate by webroot, so certbot never edits the nginx file.
 
 ## 30 October 2026 (Phase 0 decisions applied; no code change)

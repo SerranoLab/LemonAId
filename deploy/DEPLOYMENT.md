@@ -63,8 +63,14 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    `deploy/DEPLOY_LOG.md` gained one line (commit it).
 8. **Hand check** (someone other than the deployer): open the URL in one browser, run the five
    journeys on the example CSV, confirm the footer shows the tag.
-9. **Rollback drill** (once, before the beta): `deploy/deploy.sh --rollback root@host`, confirm the
-   previous build is served, deploy again. Proof: two more lines in the log.
+9. **Rollback drill** (once, before the beta). Needs two releases on the server, so deploy the same
+   tag a second time first (a new release directory), then roll back and deploy again:
+   `deploy/deploy.sh TAG root@lemonaid.serranolab.org` (second release),
+   `deploy/deploy.sh --rollback root@lemonaid.serranolab.org`,
+   `deploy/deploy.sh TAG root@lemonaid.serranolab.org`.
+   Proof: each command prints `ok`; `curl -s https://lemonaid.serranolab.org/VERSION` names the
+   release in force after each; `deploy/DEPLOY_LOG.md` gained one line per command, the rollback
+   marked `ok (rollback)`. Commit the log.
 
 ## What is never deployed
 
