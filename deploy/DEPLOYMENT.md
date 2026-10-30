@@ -60,15 +60,22 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
 6. **Certificate and full config** (droplet). Webroot mode: certbot never edits the nginx files.
    `certbot certonly --webroot -w /var/www/certbot -d lemonaid.serranolab.org -m maserr@bu.edu --agree-tos -n --deploy-hook "systemctl reload nginx"`
    `ln -sfn /etc/nginx/sites-available/lemonaid.serranolab.org.conf /etc/nginx/sites-enabled/lemonaid && nginx -t && systemctl reload nginx`
-   Proof: `systemctl list-timers | grep certbot` shows the renewal timer; `certbot renew --dry-run`
-   succeeds; (Mac) `curl -I https://lemonaid.serranolab.org` returns `302` to `/LemonAId.html`.
+   Proof: `systemctl list-timers | grep certbot` shows the renewal timer (twice a day);
+   `grep -E "authenticator|webroot_path|renew_hook" /etc/letsencrypt/renewal/lemonaid.serranolab.org.conf`
+   shows `webroot`, `/var/www/certbot` and the `systemctl reload nginx` hook, so a renewal is served
+   without a manual reload; `certbot renew --dry-run` ends with "Congratulations, all simulated renewals
+   succeeded"; (Mac) `curl -I https://lemonaid.serranolab.org` returns `302` to `/LemonAId.html`.
+   Let's Encrypt no longer emails before a certificate expires, so step 8 also reads the expiry date:
+   `echo | openssl s_client -connect lemonaid.serranolab.org:443 -servername lemonaid.serranolab.org 2>/dev/null | openssl x509 -noout -enddate`
+   should always be 30 or more days away (certbot renews at 30 days left).
    Before the first deploy, `/LemonAId.html` itself returns 404; that is expected.
 7. **First deploy** (Angie, on the Mac, from a clean checkout of the tag):
    `git checkout v0.8.0 && deploy/deploy.sh v0.8.0 root@lemonaid.serranolab.org`
    Proof: the script prints `ok`, the tag and the SHA-256; the same SHA-256 is in the GitHub Release;
    `deploy/DEPLOY_LOG.md` gained one line (commit it).
 8. **Hand check** (someone other than the deployer): open the URL in one browser, run the five
-   journeys on the example CSV, confirm the footer shows the tag.
+   journeys on the example CSV, confirm the footer shows the tag, and read the certificate expiry
+   date with the openssl command in step 6.
 9. **Rollback drill** (once, before the beta). Needs two releases on the server, so deploy the same
    tag a second time first (a new release directory), then roll back and deploy again:
    `deploy/deploy.sh TAG root@lemonaid.serranolab.org` (second release),
