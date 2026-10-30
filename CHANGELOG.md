@@ -1,6 +1,10 @@
 # LemonAId changelog
 
 ## Unreleased
+
+## v0.7.2, 30 October 2026 (deployment release; the app is unchanged)
+- The app file is byte-identical to v0.7.1: dist/LemonAId.html built at 560c94d (v0.7.1) and at this tag both have SHA-256 100a75af03b72fedc72bedd52f456a9ec0d00bed839ed793bc93fa6e448129dd. This release exists so the first deploy runs from a tag that carries the deploy tooling.
+- Since v0.7.1: MIT licence, CITATION and README credits, the roadmap, decision log, governance draft, landscape notes and handoff (see the 30 October entry below), tools/lookup_public.py, and the CI workflow fix (the workflow file had never parsed; the first green run is 64fccd0).
 - deploy: corrections from the first real run (30 October): DNS is at Porkbun; any region with the Basic plan (NYC1 used); the gate is proved on /LemonAId.html (the bare address redirects before the gate is checked); nginx no longer advertises its version (server_tokens off), checked by the local test.
 - deploy: an access gate (an include file that lives only on the server) keeps the site visible from BU only until the v0.8.0 review; port 80 stays open for certificate renewal; the local test checks both the allowed and the closed state.
 - deploy: certificate renewal is proved, not assumed: the renewal config (webroot, reload hook) and a dry run are step 6 proofs, and the served expiry date is read in the hand check (Let's Encrypt no longer emails before expiry).

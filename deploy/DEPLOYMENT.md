@@ -82,13 +82,16 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    `curl -sI https://lemonaid.serranolab.org/LemonAId.html` from a phone hotspot or any network outside BU
    returns `403`. The bare address returns 302 to everyone, because nginx answers a redirect before it
    checks the gate; the gate guards the files, which is everything there is to see.
-7. **First deploy** (Angie, on the Mac, from a clean checkout of the tag):
-   `git checkout v0.8.0 && deploy/deploy.sh v0.8.0 root@lemonaid.serranolab.org`
+7. **First deploy** (Angie, on the Mac, from a clean checkout of the tag; the first one is v0.7.2):
+   `git checkout v0.7.2 && deploy/deploy.sh v0.7.2 root@lemonaid.serranolab.org`
    Proof: the script prints `ok`, the tag and the SHA-256; the same SHA-256 is in the GitHub Release;
-   `deploy/DEPLOY_LOG.md` gained one line (commit it).
+   `deploy/DEPLOY_LOG.md` gained one line. Then `git switch main` (the log line comes along) and commit it.
 8. **Hand check** (someone other than the deployer): open the URL in one browser, run the five
-   journeys on the example CSV, confirm the footer shows the tag, and read the certificate expiry
-   date with the openssl command in step 6.
+   journeys on the example CSV, confirm `https://lemonaid.serranolab.org/VERSION` names the tag
+   and the SHA-256 in the log, and read the certificate expiry date with the openssl command in step 6.
+   The app shows a hand-written "v0.7" in its sidebar, not the tag; /VERSION is the check until the
+   build stamps the tag (v0.8.0, general build).
+
 9. **Rollback drill** (once, before the beta). Needs two releases on the server, so deploy the same
    tag a second time first (a new release directory), then roll back and deploy again:
    `deploy/deploy.sh TAG root@lemonaid.serranolab.org` (second release),
