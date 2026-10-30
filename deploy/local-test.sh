@@ -30,7 +30,10 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=lemonaid.serranolab
 sed -e 's/listen 80;/listen 8080;/' -e 's/listen 443 ssl/listen 8443 ssl/' \
     -e "s#/etc/letsencrypt/live/lemonaid.serranolab.org#$D/cert#g" \
     -e "s#/var/www/lemonaid/current#$D/www/current#" -e "s#/var/www/certbot#$D/certbot#" \
+    -e "s#/etc/nginx/lemonaid-access.conf#$D/access.conf#" \
     "$CONF" > "$D/site.conf"
+# The gate as it will be on the droplet, with this machine as the allowed address.
+printf 'allow 127.0.0.1;\ndeny all;\n' > "$D/access.conf"
 cat > "$D/nginx.conf" <<CONF
 worker_processes 1;
 pid $D/nginx.pid;
@@ -69,6 +72,16 @@ check "app file: Cache-Control no-cache"              'grep -qi "^cache-control:
 check "served file matches the build (SHA-256)"       '[[ "$BODY" == "$SHA" ]]'
 check "VERSION names the same SHA-256"                '[[ "$VER" == *"$SHA"* ]]'
 check "anything else is 404 (src/data.js)"            '[[ "$MISS" == 404 ]]'
+
+# Close the gate to everyone, including this machine: the app must answer 403, and the
+# certificate path on port 80 must still be reachable (404 here, because no challenge file exists).
+printf 'deny all;\n' > "$D/access.conf"; NG -s reload; sleep 1
+GATED=$(curl "${R[@]}" -o /dev/null -w '%{http_code}' "https://$H:8443/LemonAId.html")
+ACME=$(curl -s -o /dev/null -w '%{http_code}' -H "Host: $H" http://127.0.0.1:8080/.well-known/acme-challenge/probe)
+check "gate closed: app answers 403"                 '[[ "$GATED" == 403 ]]'
+check "gate closed: renewal path still open (404, not 403)" '[[ "$ACME" == 404 ]]'
+printf 'allow 127.0.0.1;\ndeny all;\n' > "$D/access.conf"; NG -s reload; sleep 1
+
 echo
 echo "SHA-256 $SHA"
 echo "Browser test: https://localhost:8443/LemonAId.html (self-signed: Advanced, then Proceed)."

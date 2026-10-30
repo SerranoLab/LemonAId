@@ -55,9 +55,14 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    `mkdir -p /var/www/lemonaid/releases /var/www/certbot && chown -R www-data:www-data /var/www/lemonaid`
 5. **nginx, port 80 only** (Mac, then droplet). Mac:
    `scp deploy/lemonaid.serranolab.org.bootstrap.conf deploy/lemonaid.serranolab.org.conf root@IP:/etc/nginx/sites-available/`
+   `scp deploy/access-gated.conf.example deploy/access-open.conf root@IP:/etc/nginx/`
    Droplet: `rm /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/lemonaid.serranolab.org.bootstrap.conf /etc/nginx/sites-enabled/lemonaid && nginx -t && systemctl reload nginx`
    Proof (Mac): `curl -I http://lemonaid.serranolab.org` returns `301` to https.
-6. **Certificate and full config** (droplet). Webroot mode: certbot never edits the nginx files.
+6. **Gate, certificate and full config** (Mac, then droplet). The gate decides who may see the site
+   (see "The gate" below). Mac: `curl -s https://ifconfig.me` prints the address to allow. Droplet:
+   `cp /etc/nginx/access-gated.conf.example /etc/nginx/lemonaid-access.conf && nano /etc/nginx/lemonaid-access.conf`
+   and replace `203.0.113.10` with that address. Then the certificate, in webroot mode, so certbot never
+   edits the nginx files:
    `certbot certonly --webroot -w /var/www/certbot -d lemonaid.serranolab.org -m maserr@bu.edu --agree-tos -n --deploy-hook "systemctl reload nginx"`
    `ln -sfn /etc/nginx/sites-available/lemonaid.serranolab.org.conf /etc/nginx/sites-enabled/lemonaid && nginx -t && systemctl reload nginx`
    Proof: `systemctl list-timers | grep certbot` shows the renewal timer (twice a day);
@@ -68,7 +73,8 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    Let's Encrypt no longer emails before a certificate expires, so step 8 also reads the expiry date:
    `echo | openssl s_client -connect lemonaid.serranolab.org:443 -servername lemonaid.serranolab.org 2>/dev/null | openssl x509 -noout -enddate`
    should always be 30 or more days away (certbot renews at 30 days left).
-   Before the first deploy, `/LemonAId.html` itself returns 404; that is expected.
+   Before the first deploy, `/LemonAId.html` itself returns 404; that is expected. Gate proof: the
+   same `curl -I` from a phone hotspot or any network outside BU returns `403`.
 7. **First deploy** (Angie, on the Mac, from a clean checkout of the tag):
    `git checkout v0.8.0 && deploy/deploy.sh v0.8.0 root@lemonaid.serranolab.org`
    Proof: the script prints `ok`, the tag and the SHA-256; the same SHA-256 is in the GitHub Release;
@@ -84,6 +90,19 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    Proof: each command prints `ok`; `curl -s https://lemonaid.serranolab.org/VERSION` names the
    release in force after each; `deploy/DEPLOY_LOG.md` gained one line per command, the rollback
    marked `ok (rollback)`. Commit the log.
+
+## The gate
+
+Until v0.8.0, after Carlos's review, the site is visible only from BU's network address; everyone else
+gets 403 Forbidden. This follows the order of record (private until reviewed, then public, then the
+droplet) while letting the deploy, hand check and rollback drill run on the real server.
+`/etc/nginx/lemonaid-access.conf` holds the allow and deny lines and exists only on the droplet, so no
+address enters the repository. Port 80 is not gated, so certificate renewal is unaffected.
+`deploy/local-test.sh` checks both states: allowed (200) and closed (403, with the renewal path still open).
+
+To open the site (a decision recorded in docs/DECISIONS.md first), on the droplet:
+`cp /etc/nginx/access-open.conf /etc/nginx/lemonaid-access.conf && nginx -t && systemctl reload nginx`
+Proof: `curl -I` from outside BU returns 302, then 200 for /LemonAId.html.
 
 ## What is never deployed
 

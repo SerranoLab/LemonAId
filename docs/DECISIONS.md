@@ -3,6 +3,12 @@
 One entry per decision. Newest first. Format: date, decision, who, why, what it changed.
 A decision that is not here was not made.
 
+## 2026-10-30. Deploy now, behind a gate
+Decided: Angie. Droplet steps 1 to 9 run now, so the deploy script and rollback drill are proven on the real
+server, but the site answers only BU's network address until v0.8.0 (the general build) has been reviewed by
+Carlos; everyone else gets 403. Keeps the order of record (private until reviewed, then public). The allowed
+address lives only in /etc/nginx/lemonaid-access.conf on the droplet. Opening the site is its own decision.
+
 ## 2026-10-30. Screen 01 wording
 Decided: Angie. Headline: "Make your lab's data easier to find and reuse." Body: "Start with the project list
 your lab already keeps. LemonAId highlights what's documented, what information is missing, and what to do next."
