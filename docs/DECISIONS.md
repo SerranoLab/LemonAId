@@ -3,6 +3,16 @@
 One entry per decision. Newest first. Format: date, decision, who, why, what it changed.
 A decision that is not here was not made.
 
+## 2026-10-30. v0.8.0 re-sequenced after a hands-on review
+Decided: Angie, after importing the example inventory in the locally served build. The tool talks like the
+people who built it, and the blank build still carries the case study, so the first v0.8.0 pull requests are:
+1. general build (center-specific questions, names, registry button and teaching scenario move to a CReM
+configuration; a CI test keeps them out; the build stamps its tag); 2. file-backed sessions; 3. import that
+forgives (Back on every step, a blank template modelled on the trainee experiment organisation sheet, demo
+mode); 4. plain-language pass. Reports people want to read and direct Excel import go to v0.9.0.
+Not planned: reading screenshots, PDFs or slides. That needs text recognition or a model, against the recorded
+promise of no network calls and no AI processing; a template and Excel import cover the common case.
+
 ## 2026-10-30. Screen 01 wording
 Decided: Angie. Headline: "Make your lab's data easier to find and reuse." Body: "Start with the project list
 your lab already keeps. LemonAId highlights what's documented, what information is missing, and what to do next."

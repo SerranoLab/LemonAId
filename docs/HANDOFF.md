@@ -16,9 +16,12 @@ Updated 30 October 2026. Read this first in any new working session.
 3. Carlos's ORCID; Darrell's and Sandeep's assent to the credits.
 4. One Keyence experiment folder into the Data folder.
 
-## Next engineering step (v0.8.0, first pull request)
-File-backed sessions: save to a user-chosen JSON file with a rolling history of 20 saves; browser copy becomes a cache; export round trip tested; undo and "since last save" built on the history. Checker: Sandeep on a second machine.
-Then, in order: schema as data, stable identifiers, export manifest, error cases, Playwright journeys, purpose sentence and demo mode.
+## Next engineering step (v0.8.0, re-sequenced 30 October; see DECISIONS.md)
+1. General build: case-study and CReM-specific content out of the blank build; tag stamped on screen.
+2. File-backed sessions: a user-chosen JSON file with a rolling history of 20 saves; browser copy is a cache; export round trip tested; undo and "since last save" on the history. Checker: Sandeep on a second machine.
+3. Import that forgives: Back on every step; blank template; demo mode.
+4. Plain-language pass on screens 01 to 04.
+Then, in order: schema as data, stable identifiers, export manifest, error cases, Playwright journeys, purpose sentence.
 
 ## Working rules
 - One change per pull request; a named checker who is not the author; CI green; CHANGELOG under Unreleased; decision in DECISIONS.md.

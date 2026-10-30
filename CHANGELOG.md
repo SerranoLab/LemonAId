@@ -1,5 +1,8 @@
 # LemonAId changelog
 
+## Unreleased
+- Roadmap: v0.8.0 re-sequenced after a hands-on review (general build, file-backed sessions, import that forgives, plain-language pass first); reports and Excel import added to v0.9.0. Decision recorded.
+
 ## 30 October 2026 (Phase 0 decisions applied; no code change)
 - Licence changed from BSD-2-Clause to MIT (LICENSE, CITATION.cff, README).
 - CITATION.cff: version 0.7.1, ORCID for M.A. Serrano, abstract mentions the lookup tool and the Biolink-aligned export.
