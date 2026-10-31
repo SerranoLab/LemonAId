@@ -28,6 +28,13 @@ reg('session export and reload preserve all original columns, notes and drafts',
  const restored=harness(JSON.stringify(s)).state();assert.equal(restored.reviews['reg-211'].notes.design,'A test note');assert.equal(restored.reviews['reg-211'].drafts.matrix.evidence,'Draft only');assert.deepEqual(restored.reviews['reg-211'].answers,{});assert.equal(restored.records.length,409);
  const legacy=JSON.parse(JSON.stringify(s));legacy.source.mode='carlos';assert.equal(harness(JSON.stringify(legacy)).state().source.mode,'registry');
 });
+test('the build stamps the CITATION.cff version and no hand-written version label remains (#15)',()=>{
+ const cff=fs.readFileSync(path.join(__dirname,'../CITATION.cff'),'utf8').match(/^version:\s*"?([^"\s]+)"?\s*$/m)[1];
+ const html=fs.readFileSync(path.join(__dirname,'../dist/LemonAId.html'),'utf8');
+ assert.ok(html.includes(`window.LEMONAID_VERSION = "v${cff}"`),'version from CITATION.cff is embedded');
+ assert.ok(html.includes('id="app-version"'),'sidebar shows the embedded version');
+ assert.ok(!/planner v0\.\d|prototype · v0\.\d/.test(html),'no hand-written version label');
+});
 test('standalone build contains exactly one valid script and no external app dependencies',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../dist/LemonAId.html'),'utf8');const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];assert.equal(scripts.length,1);new vm.Script(scripts[0][1]);assert.ok(!/<script[^>]+src=/.test(html));assert.ok(!/href="styles.css"/.test(html));
 });

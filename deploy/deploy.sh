@@ -28,6 +28,9 @@ fi
 TAG="$1"; HOST="$2"
 [[ "$(git describe --tags --exact-match 2>/dev/null)" == "$TAG" ]] || { echo "checkout tag $TAG first (git checkout $TAG)"; exit 1; }
 # The log is the one file a deploy writes, so it may be dirty; anything else must be committed.
+# The app shows the version from CITATION.cff, so the tag must agree with it.
+CFF_VERSION="v$(sed -n 's/^version:[[:space:]]*"\{0,1\}\([^"[:space:]]*\)"\{0,1\}[[:space:]]*$/\1/p' CITATION.cff)"
+[[ "$CFF_VERSION" == "$TAG" ]] || { echo "CITATION.cff says $CFF_VERSION but the tag is $TAG; set the version in the release commit"; exit 1; }
 [[ -z "$(git status --porcelain -- . ':!deploy/DEPLOY_LOG.md')" ]] || { echo "working tree not clean"; exit 1; }
 
 node build.cjs

@@ -13,12 +13,17 @@ const dataPath=opt('--data')||path.join(src,'data.blank.js');let data=fs.readFil
 const brand=(opt('--brand')||'LemonAId|YOUR DATA. A CLEARER PATH.').split('|');
 const reagentsPath=opt('--reagents')||path.join(__dirname,'data','reagents.json');
 const reagents=fs.existsSync(reagentsPath)?JSON.parse(fs.readFileSync(reagentsPath,'utf8')).map(r=>({id:r.id,marker:r.marker,antibody:r.antibody,clone:r.clone,catNo:r.catNo,conjugation:r.conjugation,vendor:r.vendor,module:r.module,role:r.role,lastOrdered:r.lastOrdered})):[];
+// The version shown in the app and every export comes from CITATION.cff, which the release commit sets.
+// It is read from a file, not from git, so the committed dist/ matches the commit that built it.
+const cff=fs.readFileSync(path.join(__dirname,'CITATION.cff'),'utf8').match(/^version:\s*"?([^"\s]+)"?\s*$/m);
+if(!cff)throw Error('CITATION.cff has no version line');
+const version='v'+cff[1];
 const blank=!JSON.parse(data.replace(/^[^{]*/,'').replace(/;\s*$/,'')).records.length;
 data=data.replace(/;\s*$/,'').replace(/\}\s*$/,`,"brand":${JSON.stringify({name:brand[0],sub:brand[1]||''})}};\n`);
-data+='window.CREM_REAGENTS = '+JSON.stringify(reagents)+';\nwindow.CREM_BUILD = '+JSON.stringify(blank?'blank':'registry')+';\n';
+data+='window.CREM_REAGENTS = '+JSON.stringify(reagents)+';\nwindow.CREM_BUILD = '+JSON.stringify(blank?'blank':'registry')+';\nwindow.LEMONAID_VERSION = '+JSON.stringify(version)+';\n';
 const code=[data,...['engine.js','app.js'].map(n=>fs.readFileSync(path.join(src,n),'utf8'))].join('\n').replace(/<\/script/gi,'<\\/script');
 html=html.replace('</body>',()=>`<script>${code}</script></body>`);
 const name=(opt('--name')||'LemonAId')+'.html';fs.writeFileSync(path.join(out,name),html);
 // The same page as index.html, so dist/ can be served as-is (GitHub Pages) while LemonAId.html stays the download name.
 if(blank&&!opt('--name'))fs.writeFileSync(path.join(out,'index.html'),html);
-console.log(`Saved dist/${name}${blank&&!opt('--name')?' and dist/index.html':''}${blank?' (no inventory embedded; import one in the app)':''}, reagents: ${reagents.length}`);
+console.log(`${version}: saved dist/${name}${blank&&!opt('--name')?' and dist/index.html':''}${blank?' (no inventory embedded; import one in the app)':''}, reagents: ${reagents.length}`);
