@@ -13,6 +13,28 @@ mode); 4. plain-language pass. Reports people want to read and direct Excel impo
 Not planned: reading screenshots, PDFs or slides. That needs text recognition or a model, against the recorded
 promise of no network calls and no AI processing; a template and Excel import cover the common case.
 
+## 2026-10-30. Checkers for the deploy pull requests
+Decided: Angie. The seven deploy pull requests (security headers, rollback logging, local test, renewal proofs,
+access gate, run corrections, release v0.7.2) are reviewed and merged by Angie on 30 October, each carrying the
+proofs from that day's run (local test output and droplet output) as its evidence. They were written with Claude,
+so Angie's review is a review of work she did not type. The second check is Sandeep's: the step 8 hand check on
+the live site from his own machine, signed in the release pull request or here. Until he signs, the deploy is
+recorded as checked by its proofs and by Angie only.
+
+## 2026-10-30. Deploy now, behind a gate
+Decided: Angie. Droplet steps 1 to 9 run now, so the deploy script and rollback drill are proven on the real
+server, but the site answers only BU's network address until v0.8.0 (the general build) has been reviewed by
+Carlos; everyone else gets 403. Keeps the order of record (private until reviewed, then public). The allowed
+address lives only in /etc/nginx/lemonaid-access.conf on the droplet. Opening the site is its own decision.
+
+## 2026-10-30. Tags: v0.7.1 where it happened, v0.7.2 for the first deploy
+Decided: Angie ("apply whatever is the most honest"), worked out with Claude. The repository had no tags.
+`v0.7.1` is tagged on 560c94d, the commit the CHANGELOG names for that release. The first deploy runs from
+`v0.7.2`, a new tag on main after the deploy fixes, whose CHANGELOG entry says the app file is byte-identical
+to v0.7.1 (same SHA-256) and lists what else changed. Rejected: tagging today's main as v0.7.1 (it is not the
+v0.7.1 commit) and deploying from v0.7.1 (it has no deploy script). `v0.8.0` remains the first release with
+new app behaviour.
+
 ## 2026-10-30. Screen 01 wording
 Decided: Angie. Headline: "Make your lab's data easier to find and reuse." Body: "Start with the project list
 your lab already keeps. LemonAId highlights what's documented, what information is missing, and what to do next."
