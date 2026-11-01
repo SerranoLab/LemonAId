@@ -37,13 +37,19 @@ locally for CReM use only.
 
 ### v0.8.0, Foundations (target: end of November 2026)
 
-Scope: the four engineering items the audit put first, plus error handling and a browser test.
+Scope: the four engineering items the audit put first, plus error handling and a browser test, and,
+after Angie's 30 October hands-on review, a general build and plain language a bench scientist can read.
+Pull requests go in the order of the table: general build, file-backed sessions, import that forgives,
+plain-language pass, then the remaining rows from schema as data down.
 
 | Item | Done when | Owner | Checked by |
 | --- | --- | --- | --- |
+| General build | The blank build holds nothing specific to CReM or the case study: the center questions (SFTPC/NKX2-1, KRT17, pre-SKAAR), "Return to the registry", people's names and the teaching scenario move to a CReM configuration used only by the registry build; a CI test fails if those strings reach `dist/LemonAId.html`; the build stamps its git tag on screen and in every export (no hand-written "v0.7" or "v0.3") | Angie | CI, then Sandeep reads every screen for leftovers |
 | File-backed sessions | A session saves to a JSON file the user chooses, with a rolling history of the last 20 saves; the browser copy is a cache; opening the file on a second machine shows the same notes | Angie | Sandeep, on a second machine |
-| Schema as data | `schema/lemonaid.schema.json` (fields, questions, goals, queries, normalisation targets, provenance words) is loaded by the app and the CLI tools; `schema_version` is written into every export; a BioCypher schema file is generated from it | Angie | Carlos reads it without the code |
-| Stable identifiers | Every Lab, Person, Project and Reagent gets an ID at first sight (`LA-` prefix plus sequence); `crosswalk.csv` maps names to IDs; ORCID and ROR fields exist | Angie | A renamed lab keeps its ID in a test |
+| Import that forgives | Back on every import step, nothing lost by going back; a blank template `examples/project_inventory_template.csv` with plain column names, modelled on the trainee experiment organisation sheet, and a one-page "how to fill this in"; the demo button (row below) uses the example | Angie | Sandeep imports his own sheet through the template |
+| Plain-language pass | Every on-screen explanation rewritten for a bench scientist: what the screen is for, in a question they would ask, and no curation terms without a one-line meaning (the Reach paragraph is the model: "Where can someone outside your lab find this data?") | Angie | A bench scientist outside the project reads screens 01 to 04 and says each back correctly (to be named) |
+| Schema as data | `schema/lemonaid.schema.json` (fields, questions, goals, queries, normalisation targets, provenance words) is loaded by the app and the CLI tools; `schema_version` is written into every export; the graph side is read from CReM-KG's BioCypher `schema_config.yaml` (Carlos's file is the source of truth; LemonAId never generates a competing one); the CReM configuration carries CReM-KG's ten competency questions as the readiness questions and its coverage fields (cell-line id, protocol version, marker values, reagent RRID, lot, gating definition, viability and QC, controls) | Angie | Carlos reads it without the code |
+| Stable identifiers | Every Lab, Person, Project, Run and Reagent gets a CURIE at first sight, with the prefix taken from the configuration: CReM uses CReM-KG's scheme (`CREM.PROJECT:`, `CREM.RUN:`, `CREM.LINE:` and so on); another center supplies its own registered prefix, so the app stays general; `crosswalk.csv` maps names to IDs; ORCID and ROR fields exist; notes in a name never become part of an ID | Angie | A renamed lab keeps its ID in a test; every exported ID passes CReM-KG's BioCypher check (Carlos) |
 | Export manifest | `manifest.json` beside every export: LemonAId version, schema version, source file names and SHA-256, row counts, time | Angie | Carlos's loader reads it |
 | Error handling | Ten malformed inputs (empty file, no header, wrong delimiter, Latin-1, 50 MB, duplicate IDs, binary file, mismatched columns, unknown date formats, a file of only headers) each produce a visible message and leave the session unchanged; all ten are tests | Angie | Test run in CI |
 | End-to-end test | Playwright drives the blank build through the five journeys (import, review, answer with evidence, validate a sheet, export) in Chromium and WebKit; runs in CI | Angie | CI |
@@ -70,6 +76,8 @@ Scope: the building blocks specified in the review pack (tab C), the vocabulary 
 | Core intake pilot | Lauren's project goes through the reader with Carlos present; report and graph export accepted without editing; minutes per project reported from the local timing | Carlos, Angie | Carlos signs the report |
 | Hand-off view | One page per person: every open question, missing evidence and unresolved normalisation on their projects; exportable as the report | Angie | A departing trainee uses it |
 | Governance charter and sustainability statement | docs/GOVERNANCE.md and a Sustainability section in the README, reviewed by Carlos and Darrell | Angie | Darrell |
+| Reports people want to read | The plan and overview exports open with a one-paragraph summary and a short list of next steps, then the details; LemonAId branding; bullets, not dense tables; printable on letter paper | Angie | Darrell reads one report cold |
+| Excel import | `.xlsx` read directly in the browser by a bundled library (nothing leaves the machine), first sheet or a chosen one | Angie | Sandeep |
 | Comparison with existing tools | README section and paper section: what DSW, RDMkit, FAIR-Checker, FAIRshake and ELN/LIMS do, where LemonAId sits, how they connect | Angie | Carlos |
 
 Gate: pilot report signed; two Serrano projects end to end; tag `v0.9.0`.

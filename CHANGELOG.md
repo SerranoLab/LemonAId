@@ -1,6 +1,8 @@
 # LemonAId changelog
 
 ## Unreleased
+- Roadmap and decisions: aligned to CReM-KG (CREM.* identifiers by configuration, schema read from its BioCypher file, its competency questions and coverage fields); LemonAId recorded as the Aim 1 instrument.
+- Roadmap: v0.8.0 re-sequenced after a hands-on review (general build, file-backed sessions, import that forgives, plain-language pass first); reports and Excel import added to v0.9.0. Decision recorded.
 
 ## v0.7.2, 30 October 2026 (deployment release; the app is unchanged)
 - The app file is byte-identical to v0.7.1: dist/LemonAId.html built at 560c94d (v0.7.1) and at this tag both have SHA-256 100a75af03b72fedc72bedd52f456a9ec0d00bed839ed793bc93fa6e448129dd. This release exists so the first deploy runs from a tag that carries the deploy tooling.

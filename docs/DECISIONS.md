@@ -3,6 +3,38 @@
 One entry per decision. Newest first. Format: date, decision, who, why, what it changed.
 A decision that is not here was not made.
 
+## 2026-10-31. LemonAId aligned to CReM-KG; Aim 1 instrument
+Decided: Angie, after reviewing Carlos's CReM-KG architecture draft (30 October) with Claude.
+1. Identifiers: CReM-KG's CURIE scheme (`CREM.*`) for CReM. The app stays usable by everyone: CReM is one
+configuration, and another center brings its own registered prefix. The `LA-` prefix is dropped.
+2. Schema: CReM-KG's BioCypher `schema_config.yaml` is the source of truth; LemonAId reads it.
+3. Counts: the CReM registry figure stays at 409, the count LemonAId's registry build produces, until the
+record that separates it from the architecture draft's 410 is found and traced. Neither number enters a
+document without the commit and input file it came from.
+4. Readiness questions: CReM-KG's ten competency questions become the CReM configuration's questions, so the
+readiness panel is a before-the-graph baseline for the proposal's own questions.
+5. Coverage: the overview reports CReM-KG's cytometry coverage fields (Figure 9b of the draft).
+6. Governance: LemonAId's charter and CReM-KG's serving and licence plan are written as one governance story.
+7. Proposal: Aim 1 builds the AI-ready dataset and LemonAId is its instrument; Aim 2 (Carlos) demonstrates what
+the dataset enables. This reverses the 28 October note that LemonAId was not for the proposal. Preliminary data
+for Aim 1 in three layers: the tool released; the center view (registry); one CReM laboratory in depth (Serrano
+Lab). Wording: LemonAId measures the gap and lays out the path; it does not by itself make data AI-ready.
+To be agreed with Darrell (PI) and Carlos.
+Also noted: the Serrano Lab inventory records no public accession, but GSE302350 (Carly Golden's data) is public;
+the inventory is corrected at its source before any Serrano Lab coverage figure is quoted.
+Release: Angie plans an open release by 1 November evening and a handoff to Carlos on 31 October; the v0.9.0
+readers stay after submission. Opening the site and repository follows Carlos's written review (order of record).
+
+## 2026-10-30. v0.8.0 re-sequenced after a hands-on review
+Decided: Angie, after importing the example inventory in the locally served build. The tool talks like the
+people who built it, and the blank build still carries the case study, so the first v0.8.0 pull requests are:
+1. general build (center-specific questions, names, registry button and teaching scenario move to a CReM
+configuration; a CI test keeps them out; the build stamps its tag); 2. file-backed sessions; 3. import that
+forgives (Back on every step, a blank template modelled on the trainee experiment organisation sheet, demo
+mode); 4. plain-language pass. Reports people want to read and direct Excel import go to v0.9.0.
+Not planned: reading screenshots, PDFs or slides. That needs text recognition or a model, against the recorded
+promise of no network calls and no AI processing; a template and Excel import cover the common case.
+
 ## 2026-10-30. Checkers for the deploy pull requests
 Decided: Angie. The seven deploy pull requests (security headers, rollback logging, local test, renewal proofs,
 access gate, run corrections, release v0.7.2) are reviewed and merged by Angie on 30 October, each carrying the
