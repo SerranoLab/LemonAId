@@ -97,7 +97,7 @@ test('CSV downloads escape quotes and neutralize spreadsheet formula prefixes',(
  const result=E.csv([['=HYPERLINK("bad")','@SUM(1)','-cmd','normal, text']]);assert.ok(result.startsWith('"\'=HYPERLINK'));assert.ok(result.includes('"\'@SUM'));assert.ok(result.includes('"normal, text"'));
 });
 test('source NA stays absent without conflating explicit no-reporter text with missingness',()=>{
- assert.ok(E.missing('NA'));assert.ok(!E.missing('No reporters'));assert.ok(!E.missing('None, cells labeled with GFP lentivirus'));assert.deepEqual(E.species({genome_reference:'Human'}),{organism:'Human',assembly:'Not supplied'});assert.equal(E.species({genome_reference:'Human and Mouse'}).organism,'Human and mouse (mixed)');
+ assert.ok(E.missing('NA'));assert.ok(!E.missing('No reporters'));assert.ok(!E.missing('None, cells labeled with GFP lentivirus'));assert.deepEqual(E.species({genome_reference:'Human'}),{organism:'Human',assembly:'Not supplied',taxon:'NCBITaxon:9606'});assert.equal(E.species({genome_reference:'Human and Mouse'}).organism,'Human and mouse (mixed)');
 });
 
 reg('start-here shortlist excludes shared projects, ranks by recorded context and names the next step',()=>{
@@ -167,4 +167,16 @@ test('#11: a normalisation proposal depends only on the assay field, so projects
  assert.deepEqual(E.classify(flowText),['flow cytometry in text, confirm assay']);
  const g=E.graphExport(recs,m,{},{},norm);
  for(const e of g.edges.filter(e=>e.relation==='HAS_ASSAY'))assert.equal(e.target,'assay:sequencing-type-to-confirm','graph keeps the source string when nothing is proposed');
+});
+
+test('#14: organisms get NCBITaxon CURIEs; zebrafish is recognised; unknown strings stay unresolved',()=>{
+ assert.equal(E.species({genome_reference:'Zebrafish'}).taxon,'NCBITaxon:7955');
+ assert.equal(E.species({genome_reference:'GRCz11'}).organism,'Zebrafish');
+ assert.equal(E.species({genome_reference:'Human'}).taxon,'NCBITaxon:9606');
+ assert.equal(E.species({genome_reference:'Human and mouse'}).taxon,'','a mixed record gets no single CURIE');
+ assert.equal(E.species({genome_reference:'Axolotl'}).organism,'Unresolved');
+ const m={...E.DEFAULT_MAP};const recs=[{key:'a',row:2,raw:{genome_reference:'Zebrafish',experiment_type:'',Dataset_Name:'',purpose_of_experiment:''}}];
+ const norm=E.normTable(recs,m);assert.equal(norm.genome_reference[0].proposed,'Zebrafish (NCBITaxon:7955)');
+ const g=E.graphExport(recs,m,{},{},norm);const e=g.edges.find(e=>e.relation==='USES_ORGANISM');assert.equal(e.target,'NCBITaxon:7955');
+ assert.equal(g.nodes.find(n=>n.id==='NCBITaxon:7955').name,'Zebrafish');
 });

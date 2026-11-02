@@ -100,13 +100,16 @@
     if(/flow cytometr|FACS/i.test(text))tags.push('flow cytometry in text, confirm assay');
     return tags.length?tags:['Assay type to confirm'];
   }
+  // NCBI Taxonomy CURIEs for the organisms the inventories name. A mixed record gets none; the plan asks for one per sample.
+  const TAXON={Human:'NCBITaxon:9606',Mouse:'NCBITaxon:10090',Zebrafish:'NCBITaxon:7955',Rat:'NCBITaxon:10116',Ferret:'NCBITaxon:9669'};
   function species(p){
     const x=p.genome_reference;
     if(missing(x))return {organism:'Unknown',assembly:'Unknown'};
     const hu=/human|homo sapiens|hg38|grch38/i.test(x),mo=/mouse|mus musculus|grcm39|mm10|mm39/i.test(x);
-    let organism=hu&&mo?'Human and mouse (mixed)':hu?'Human':mo?'Mouse':/ferret/i.test(x)?'Ferret':/\brat\b|rattus/i.test(x)?'Rat':'Unresolved';
-    let assembly=(x.match(/GRCh38|GRCm39|GRCm38|hg38|hg19|mm10|mm39/i)||[])[0]||'Not supplied';
-    return {organism,assembly};
+    const zf=/zebrafish|danio|grcz|danrer/i.test(x),fe=/ferret|mustela/i.test(x),rat=/\brat\b|rattus|rnor/i.test(x);
+    let organism=hu&&mo?'Human and mouse (mixed)':hu?'Human':mo?'Mouse':zf?'Zebrafish':fe?'Ferret':rat?'Rat':'Unresolved';
+    let assembly=(x.match(/GRCh38|GRCm39|GRCm38|hg38|hg19|mm10|mm39|GRCz11|GRCz10|danRer11|danRer10|Rnor_6\.0|mRatBN7/i)||[])[0]||'Not supplied';
+    return {organism,assembly,taxon:TAXON[organism]||''};
   }
   const QUESTIONS = [
     {id:'rna',label:'Are the primary data files located?',options:[['unknown','Not yet checked'],['yes','Located'],['no','Unavailable for this project']],why:'A project description, viewer link or accession does not by itself establish access to the files.'},
@@ -220,7 +223,7 @@
   }
   // Normalisation: proposed controlled term per distinct source string, for assay and organism.
   const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=assayFromField(p.experiment_type);return t.length?t[0].replace(/ recorded$/,''):'';}},
-                      genome_reference:{label:'Organism',ontology:'NCBITaxon',namespace:'NCBITaxon:',biolink:'biolink:OrganismTaxon',propose:p=>{const o=species(p).organism;return o==='Unknown'||o==='Unresolved'?'':o;}}};
+                      genome_reference:{label:'Organism',ontology:'NCBITaxon',namespace:'NCBITaxon:',biolink:'biolink:OrganismTaxon',propose:p=>{const sp=species(p);return sp.taxon?`${sp.organism} (${sp.taxon})`:'';}}};
   function normTable(records,map,overrides={}){
     const out={};
     for(const f of Object.keys(NORM_TARGETS)){
@@ -298,7 +301,7 @@
       if(!missing(p.lab))for(const l of p.lab.split(/;\s*/)){const lid=node('lab:'+slug(l),'Lab',l,{biolink_category:'biolink:Agent'});edge(pid,'IN_LAB',lid,provenanceOf(r,pmap,'lab'),src);}
       if(!missing(p.contact_person)){const cid=node('person:'+slug(p.contact_person),'Person',p.contact_person,{biolink_category:'biolink:Agent'});edge(pid,'HAS_CONTACT',cid,'recorded',src);}
       const normProv=(f,v)=>{const row=(norm[f]||[]).find(x=>x.original===clean(v));return row&&row.reviewer?'reviewed':'normalised';};
-      if(!missing(p.genome_reference)){const term=termFor(norm,'genome_reference',p.genome_reference)||species(p).organism;const oid=node('organism:'+slug(term),'Organism',term,{biolink_category:'biolink:OrganismTaxon',ontology:'NCBITaxon (to resolve)'});edge(pid,'USES_ORGANISM',oid,term===p.genome_reference?'recorded':normProv('genome_reference',p.genome_reference),src,'source string: '+p.genome_reference);}
+      if(!missing(p.genome_reference)){const term=termFor(norm,'genome_reference',p.genome_reference)||species(p).organism;const sp=species(p),curie=(term.match(/NCBITaxon:\d+/)||[])[0]||(term===sp.organism?sp.taxon:'');const oid=node(curie||'organism:'+slug(term),'Organism',term.replace(/\s*\(NCBITaxon:\d+\)$/,''),{biolink_category:'biolink:OrganismTaxon',ontology:curie?'NCBITaxon':'NCBITaxon (to resolve)'});edge(pid,'USES_ORGANISM',oid,term===p.genome_reference?'recorded':normProv('genome_reference',p.genome_reference),src,'source string: '+p.genome_reference);}
       if(!missing(p.experiment_type)){const term=termFor(norm,'experiment_type',p.experiment_type)||p.experiment_type;const aid=node('assay:'+slug(term),'Assay',term,{biolink_category:'biolink:Procedure',ontology:'OBI/EFO (to resolve)'});edge(pid,'HAS_ASSAY',aid,term===p.experiment_type?'recorded':normProv('experiment_type',p.experiment_type),src,'source string: '+p.experiment_type);}
       if(!missing(p.reporters)){const rid=node('reporter:'+slug(p.reporters).slice(0,60),'ReporterDescription',p.reporters,{biolink_category:'biolink:InformationContentEntity'});edge(pid,'USES_REPORTER',rid,'recorded',src,'free text; resolve to iPSC line and gene symbols at sample ingest');}
       for(const [f,role] of [['shinyapp_link','Shiny viewer'],['analysis_visualization_link','Interactive viewer']])if(!missing(p[f]))for(const u of p[f].split(/;\s*/)){const did=node('resource:'+slug(u).slice(0,80),'DataResource',u,{biolink_category:'biolink:InformationResource',role});edge(pid,'HAS_RESOURCE',did,'recorded',src);}
