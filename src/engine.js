@@ -102,6 +102,9 @@
   }
   // NCBI Taxonomy CURIEs for the organisms the inventories name. A mixed record gets none; the plan asks for one per sample.
   const TAXON={Human:'NCBITaxon:9606',Mouse:'NCBITaxon:10090',Zebrafish:'NCBITaxon:7955',Rat:'NCBITaxon:10116',Ferret:'NCBITaxon:9669'};
+  // A contact field often carries a note in brackets ("Maria Serrano (folder owner; confirm trainee)").
+  // The note is kept on the record; it never becomes part of the person's identity (issue #13).
+  function personName(x){const m=clean(x).match(/^(.*?)\s*[\(\[](.*)[\)\]]\s*$/);return m?{name:clean(m[1]),note:clean(m[2])}:{name:clean(x),note:''};}
   function species(p){
     const x=p.genome_reference;
     if(missing(x))return {organism:'Unknown',assembly:'Unknown'};
@@ -138,8 +141,16 @@
     const next=missingCtx.length?'Recover '+missingCtx.map(f=>({Dataset_Name:'name',contact_person:'contact',experiment_type:'assay type',genome_reference:'organism'})[f]).join(', '):'Locate files, confirm reuse terms, deposit';
     return {score:ctx+(viewer?2:0)+(recent?1:0),viewer,recent,next,shared:hasAccession(p)};
   }
-  function shortlist(records,map,n=10){
-    return records.map(r=>{const p=canonical(r,map);return {record:r,p,...readiness(p)};}).filter(x=>!x.shared).sort((a,b)=>b.score-a.score||String(b.p.project_date).localeCompare(String(a.p.project_date))).slice(0,n);
+  // Ties are broken by evidence answered (reviews), then by the most recent date, and the rule is printed
+  // on screen. shortlist also reports how many projects share the top score, so a top ten of equals is
+  // never presented as a ranking (issue #12).
+  const SHORTLIST_TIEBREAK='Ties are ordered by evidence answered, then by the most recent project date.';
+  function shortlist(records,map,n=10,reviews={}){
+    const answered=r=>{const a=(reviews[r.key]||{}).answers||{};return Object.values(a).filter(x=>x&&x.value&&x.value!=='unknown'&&clean(x.evidence)).length;};
+    const all=records.map(r=>{const p=canonical(r,map);return {record:r,p,...readiness(p),answered:answered(r)};}).filter(x=>!x.shared)
+      .sort((a,b)=>b.score-a.score||b.answered-a.answered||String(b.p.project_date).localeCompare(String(a.p.project_date)));
+    const top=all.length?all[0].score:0,tied=all.filter(x=>x.score===top).length;
+    const list=all.slice(0,n);list.tied=tied;list.top=top;list.total=all.length;return list;
   }
   // Which of the readiness fields a record has filled in, for the inventory summary.
   function completeness(records,map){
@@ -299,7 +310,7 @@
       const p=canonical(r,map),src=`row ${r.row}`,rev=reviews[r.key]||{},a=rev.answers||{};
       const pid=node('project:'+slug(p.project_id||'row-'+r.row),'Project',p.Dataset_Name||p.project_id,{biolink_category:'biolink:Study',project_id:p.project_id,date:p.project_date,purpose:p.purpose_of_experiment,purpose_provenance:provenanceOf(r,pmap,'purpose_of_experiment'),source_row:r.row});
       if(!missing(p.lab))for(const l of p.lab.split(/;\s*/)){const lid=node('lab:'+slug(l),'Lab',l,{biolink_category:'biolink:Agent'});edge(pid,'IN_LAB',lid,provenanceOf(r,pmap,'lab'),src);}
-      if(!missing(p.contact_person)){const cid=node('person:'+slug(p.contact_person),'Person',p.contact_person,{biolink_category:'biolink:Agent'});edge(pid,'HAS_CONTACT',cid,'recorded',src);}
+      if(!missing(p.contact_person)){const nm=personName(p.contact_person);const cid=node('person:'+slug(nm.name),'Person',nm.name,{biolink_category:'biolink:Agent',note:nm.note});edge(pid,'HAS_CONTACT',cid,'recorded',src,nm.note?'note in source: '+nm.note:'');}
       const normProv=(f,v)=>{const row=(norm[f]||[]).find(x=>x.original===clean(v));return row&&row.reviewer?'reviewed':'normalised';};
       if(!missing(p.genome_reference)){const term=termFor(norm,'genome_reference',p.genome_reference)||species(p).organism;const sp=species(p),curie=(term.match(/NCBITaxon:\d+/)||[])[0]||(term===sp.organism?sp.taxon:'');const oid=node(curie||'organism:'+slug(term),'Organism',term.replace(/\s*\(NCBITaxon:\d+\)$/,''),{biolink_category:'biolink:OrganismTaxon',ontology:curie?'NCBITaxon':'NCBITaxon (to resolve)'});edge(pid,'USES_ORGANISM',oid,term===p.genome_reference?'recorded':normProv('genome_reference',p.genome_reference),src,'source string: '+p.genome_reference);}
       if(!missing(p.experiment_type)){const term=termFor(norm,'experiment_type',p.experiment_type)||p.experiment_type;const aid=node('assay:'+slug(term),'Assay',term,{biolink_category:'biolink:Procedure',ontology:'OBI/EFO (to resolve)'});edge(pid,'HAS_ASSAY',aid,term===p.experiment_type?'recorded':normProv('experiment_type',p.experiment_type),src,'source string: '+p.experiment_type);}
@@ -416,6 +427,6 @@
   }
 
   function csv(rows){return rows.map(r=>r.map(x=>{let s=String(x??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');}
-  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
+  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,SHORTLIST_TIEBREAK,personName,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.CREM=api;
 })(typeof window!=='undefined'?window:globalThis);

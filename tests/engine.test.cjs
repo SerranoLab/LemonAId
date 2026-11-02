@@ -180,3 +180,18 @@ test('#14: organisms get NCBITaxon CURIEs; zebrafish is recognised; unknown stri
  const g=E.graphExport(recs,m,{},{},norm);const e=g.edges.find(e=>e.relation==='USES_ORGANISM');assert.equal(e.target,'NCBITaxon:7955');
  assert.equal(g.nodes.find(n=>n.id==='NCBITaxon:7955').name,'Zebrafish');
 });
+
+test('#13: a bracketed note in the contact field stays a note, not part of the person id',()=>{
+ assert.deepEqual(E.personName('Maria Serrano (folder owner; confirm trainee)'),{name:'Maria Serrano',note:'folder owner; confirm trainee'});
+ assert.deepEqual(E.personName('Lauren'),{name:'Lauren',note:''});
+ const m={...E.DEFAULT_MAP};const recs=[1,2].map(i=>({key:'k'+i,row:i+1,raw:{contact_person:i===1?'Maria Serrano (folder owner; confirm trainee)':'Maria Serrano (confirm)',Dataset_Name:'',experiment_type:'',purpose_of_experiment:'',genome_reference:''}}));
+ const g=E.graphExport(recs,m,{},{},{});const people=g.nodes.filter(n=>n.label==='Person');
+ assert.equal(people.length,1);assert.equal(people[0].id,'person:maria-serrano');assert.equal(people[0].name,'Maria Serrano');
+});
+test('#12: the shortlist breaks ties by evidence answered, then date, and reports how many share the top score',()=>{
+ const m={...E.DEFAULT_MAP};const mk=(id,date)=>({key:id,row:1,raw:{project_id:id,Dataset_Name:id,contact_person:'x',experiment_type:'Bulk RNA-seq',genome_reference:'Human',purpose_of_experiment:'p',project_date:date,geo_accession:''}});
+ const recs=[mk('old','2024-01-01'),mk('new','2025-01-01'),mk('answered','2023-01-01')];
+ const reviews={answered:{answers:{rna:{value:'yes',evidence:'on the server'}}}};
+ const list=E.shortlist(recs,m,10,reviews);
+ assert.equal(list.tied,3);assert.equal(list.top,6);assert.deepEqual(list.map(x=>x.p.project_id),['answered','new','old']);
+});
