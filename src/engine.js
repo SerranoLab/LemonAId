@@ -3,10 +3,10 @@
   const FIELDS = [
     ['project_id','Project ID'], ['Dataset_Name','Dataset / project name'],
     ['lab','Laboratory'], ['project_date','Project date'], ['contact_person','Contact'],
-    ['genome_reference','Species / genome reference'], ['reporters','Reporters'],
-    ['experiment_type','Assay type (as recorded)'], ['purpose_of_experiment','Purpose'],
+    ['genome_reference','Organism (and genome build if known)'], ['reporters','Reporters'],
+    ['experiment_type','What was measured (assay)'], ['purpose_of_experiment','Purpose'],
     ['analysis_visualization_link','Analysis viewer link'], ['shinyapp_link','Shiny link'],
-    ['geo_accession','Public accession (GEO)']
+    ['geo_accession','Public database ID (GEO, SRA, ArrayExpress)']
   ];
   // Fields a reader needs to find, understand and reuse a dataset. Used for the completeness summary.
   const READINESS_FIELDS = ['Dataset_Name','contact_person','genome_reference','experiment_type','purpose_of_experiment','reporters','analysis_visualization_link','shinyapp_link','geo_accession'];
@@ -215,7 +215,7 @@
     if(goal==='share')return QUESTIONS.filter(q=>!['flow','relation','matrix'].includes(q.id));
     return QUESTIONS.filter(q=>goal==='joint'||!['flow','relation'].includes(q.id));
   }
-  const READINESS_RULE='One point for each context field recorded (name, contact, assay, organism, purpose), two for a viewer link, one for a 2023 or later date; eight in total. Projects with a public accession are excluded. The score measures what the inventory records, not the quality of the data.';
+  const READINESS_RULE='One point each for a name, a contact, the assay, the organism and a purpose; two for an online viewer; one for a start date in 2023 or later. Eight is the most. The score measures paperwork, not the data.';
   // Start-here ranking: projects that are nearly ready to share but have no public accession.
   // Score = recorded context fields (name, contact, assay, organism, purpose; 1 each) + viewer (2) + registered 2023 or later (1).
   function readiness(p){
