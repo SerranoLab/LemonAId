@@ -84,3 +84,8 @@ test('the public build is general: no center questions, names or case study; the
  const cfg=JSON.parse(fs.readFileSync(path.join(__dirname,'../config/crem.queries.json'),'utf8'));
  assert.equal(cfg.queries.length,5);for(const q of cfg.queries)for(const n of q.needs)assert.ok(E.NEEDS[typeof n==='string'?n:n.need],'need exists: '+JSON.stringify(n));
 });
+
+test('a click that is not an export does not download anything (regression: the session export ran on every click)',async()=>{
+ const h=blankHarness();await h.click('nothing-here');assert.equal(h.node('#export-filename').textContent,'','no file was prepared');
+ await h.click('export-session');assert.match(h.node('#export-filename').textContent,/lemonaid-session\.json/);
+});
