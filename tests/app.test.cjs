@@ -47,3 +47,32 @@ reg('inventory-level exports cover every record and the blank build carries no i
  await h.click('export-overview');const o=h.node('#export-text').value;assert.ok(o.includes('Reach by laboratory')&&o.includes('Closest to shareable')&&o.includes('Kotton Lab'));
  const blank=fs.readFileSync(path.join(__dirname,'../dist/LemonAId.html'),'utf8');assert.ok(!blank.includes('25_06_24_lauren'));assert.ok(/"records":\s*\[\]/.test(blank));assert.ok(!/<script[^>]+src=/.test(blank));
 });
+
+// A blank-build session built from the example inventory, so exports can be tested without the private registry.
+function exampleSession(){
+ const text=fs.readFileSync(path.join(__dirname,'../examples/serrano_lab_projects_2026-10-21.csv'),'utf8');
+ const parsed=E.parseDelimited(text);const records=parsed.rows.map((r,i)=>({key:'ex-'+i,row:i+2,raw:r.raw}));
+ return JSON.stringify({version:1,source:{name:'Imported inventory',mode:'import',path:''},records,map:E.suggestMap(parsed.headers),pmap:E.provenanceMap(parsed.headers),norm:{},lastExport:'',selected:'ex-41',goal:'share',reviews:{},view:'inventory'});
+}
+const blankHarness=()=>harness(exampleSession(),'lemonaid-blank-v1');
+test('every export carries the alpha note, and the plan omits the single-cell branch for a bulk RNA-seq project (#15)',async()=>{
+ const h=blankHarness();assert.equal(h.state().records.length,49);
+ await h.click('export-session');assert.match(JSON.parse(h.node('#export-text').value).alpha_note,/alpha: identifiers/);
+ await h.click('export-overview');const ov=h.node('#export-text').value;assert.match(ov,/alpha: identifiers/);assert.match(ov,/share the top score/);
+ await h.click('export-nodes');assert.match(h.node('#export-text').value,/\n# LemonAId .* alpha/);
+ await h.click('export-report');const rep=h.node('#export-text').value;
+ assert.match(rep,/KMT2D iPSC Cell-Cycle RNA-seq Analysis/);assert.ok(!/scRNA-seq \/ snRNA-seq branch/.test(rep),'no single-cell branch for a bulk project');assert.match(rep,/alpha: identifiers/);
+});
+test('#11: for every example row, the graph assay term is either the field-only proposal or the source string, never a text hint',()=>{
+ const st=JSON.parse(exampleSession());const recs=st.records,m=st.map;const norm=E.normTable(recs,m);
+ const g=E.graphExport(recs,m,st.pmap,{},norm);
+ for(const r of recs){const p=E.canonical(r,m);if(E.missing(p.experiment_type))continue;
+  const e=g.edges.find(x=>x.source==='project:'+p.project_id.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')&&x.relation==='HAS_ASSAY');assert.ok(e,'edge for '+p.project_id);
+  const proposal=E.normTable([r],m).experiment_type[0].proposed;
+  const expect=(proposal||p.experiment_type).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  assert.equal(e.target,'assay:'+expect,p.project_id);
+  if(proposal)assert.ok(E.classify(p).some(t=>t===proposal+' recorded'),p.project_id+': proposal comes from the field');
+ }
+ const s8=recs.find(r=>r.raw.project_id==='iPSC_S8_RNAseq');const e=g.edges.find(x=>x.source==='project:ipsc-s8-rnaseq'&&x.relation==='HAS_ASSAY');
+ assert.equal(e.target,'assay:sequencing-type-to-confirm');assert.deepEqual(E.classify(E.canonical(s8,m)),['flow cytometry in text, confirm assay']);
+});
