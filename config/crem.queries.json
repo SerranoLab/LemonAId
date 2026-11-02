@@ -1,0 +1,90 @@
+{
+ "source": "CReM-KG plan (Carlos Villacorta Martin), October 2026",
+ "panel_intro": "The questions come from the CReM-KG plan; the requirements under each are LemonAId's reading of what the question needs from the inventory and the evidence register, and they are for the Core to confirm or rewrite.",
+ "queries": [
+  {
+   "id": "markers",
+   "title": "Which clusters, across all experiments, have SFTPC and NKX2-1 among their top markers?",
+   "source": "CReM-KG explainer, use 1",
+   "needs": [
+    "single_cell_recorded",
+    {
+     "need": "files_located",
+     "label": "expression files located"
+    },
+    "annotation_documented"
+   ]
+  },
+  {
+   "id": "lines",
+   "title": "Which of our lines model cells where a given disease gene acts?",
+   "source": "CReM-KG explainer, metapath Disease to Gene to Cell type to iPSC line",
+   "needs": [
+    "reporter_recorded",
+    "organism_resolved",
+    {
+     "need": "provenance_recorded",
+     "label": "contrast or marker results with processing records"
+    },
+    {
+     "need": "samples_traced",
+     "label": "libraries traced to samples and lines"
+    }
+   ]
+  },
+  {
+   "id": "q3",
+   "title": "Which lines were ever put through a media swap that induced KRT17, which have matched ATAC, and do the retained-accessibility lines share a donor feature?",
+   "source": "Carlos, query 3",
+   "needs": [
+    "reporter_recorded",
+    "design_confirmed",
+    {
+     "need": "assays_paired",
+     "label": "ATAC paired to the same sample or sibling aliquot"
+    },
+    {
+     "need": "files_located",
+     "label": "files located"
+    }
+   ]
+  },
+  {
+   "id": "q2",
+   "title": "Which projects have cells within a distance of the mouse pre-SKAAR region of a shared latent space, whatever the original cluster was called?",
+   "source": "Carlos, query 2 (needs a shared embedding)",
+   "needs": [
+    "counts_documented",
+    {
+     "need": "annotation_documented",
+     "label": "cell labels mapped to an ontology"
+    },
+    "assembly_resolved",
+    {
+     "need": "reuse_permitted",
+     "label": "reuse permitted"
+    }
+   ]
+  },
+  {
+   "id": "q1",
+   "title": "Across every line, protocol, medium and time point, which conditions produce a trapped SKAAR-like state, and which untried condition would flatten the basin?",
+   "source": "Carlos, query 1 (needs a causal model of fate; the horizon question)",
+   "horizon": true,
+   "needs": [
+    {
+     "need": "never",
+     "label": "everything above, for every project"
+    },
+    {
+     "need": "never",
+     "label": "protocol versions and media linked to runs"
+    },
+    {
+     "need": "never",
+     "label": "a validated causal model of differentiation"
+    }
+   ]
+  }
+ ]
+}

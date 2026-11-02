@@ -14,6 +14,14 @@ jobs:
       - run: node build.cjs
       - name: committed dist/ is exactly what the source builds
         run: git diff --exit-code -- dist/
+      - name: the public build is general (no center questions, names or case study)
+        run: |
+          ! grep -nE 'SFTPC|NKX2-1|KRT17|SKAAR|Carlos|CReM-KG|Villacorta|Lauren|Kotton|Mostoslavsky' dist/LemonAId.html
+      - name: a center configuration builds and carries its questions
+        run: |
+          node build.cjs --queries config/crem.queries.json --name LemonAId_config_check
+          grep -q 'LEMONAID_QUERIES' dist/LemonAId_config_check.html && grep -q 'SFTPC and NKX2-1' dist/LemonAId_config_check.html
+          rm dist/LemonAId_config_check.html
       - name: no hand-written version labels in the source
         run: |
           ! grep -nE 'planner v0\.[0-9]|prototype · v0\.[0-9]' src/*.js src/*.html

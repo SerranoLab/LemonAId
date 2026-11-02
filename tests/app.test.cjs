@@ -76,3 +76,11 @@ test('#11: for every example row, the graph assay term is either the field-only 
  const s8=recs.find(r=>r.raw.project_id==='iPSC_S8_RNAseq');const e=g.edges.find(x=>x.source==='project:ipsc-s8-rnaseq'&&x.relation==='HAS_ASSAY');
  assert.equal(e.target,'assay:sequencing-type-to-confirm');assert.deepEqual(E.classify(E.canonical(s8,m)),['flow cytometry in text, confirm assay']);
 });
+
+test('the public build is general: no center questions, names or case study; the engine ships the five general questions',()=>{
+ const html=fs.readFileSync(path.join(__dirname,'../dist/LemonAId.html'),'utf8');
+ assert.ok(!/SFTPC|NKX2-1|KRT17|SKAAR|Carlos|CReM-KG|Villacorta|Lauren|Kotton|Mostoslavsky/.test(html),'no center-specific text in the public build');
+ assert.equal(E.QUERIES.length,5);assert.equal(E.QUERIES_SOURCE,'');assert.ok(E.QUERIES.every(q=>q.needs.every(([,t])=>typeof t==='function')));
+ const cfg=JSON.parse(fs.readFileSync(path.join(__dirname,'../config/crem.queries.json'),'utf8'));
+ assert.equal(cfg.queries.length,5);for(const q of cfg.queries)for(const n of q.needs)assert.ok(E.NEEDS[typeof n==='string'?n:n.need],'need exists: '+JSON.stringify(n));
+});
