@@ -40,7 +40,8 @@ jobs:
           ! grep -q '<link[^>]*href=' dist/LemonAId.html
   browser:
     name: browser journeys (Chromium)
-    runs-on: ubuntu-latest
+    # pinned: ubuntu-latest moved to 26.04, which Playwright does not yet support
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
