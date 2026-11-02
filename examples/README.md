@@ -1,1 +1,3 @@
 `serrano_lab_projects_2026-10-21.csv`: 49 projects from the Serrano Lab GitHub folder, generated from file types, READMEs and notebook titles. Values marked "[inferred ...]" and the `inferred_fields` column say what to verify. Import it into `dist/LemonAId.html` to see a full inventory without typing one.
+
+`project_inventory_template.csv` and `project_inventory_template_guide.md`: the blank template the app offers under "Start a blank one", with one example row. Column names follow the Bioinformatics Core's sample-submission form where the two overlap, so a lab that fills this has already filled the Core's intake. Both files are generated from `src/engine.js` (a test keeps them identical).

@@ -27,14 +27,24 @@
     <footer><span id="save-state" role="status">Saved only in this browser</span><span>© 2026 Center for Regenerative Medicine, Boston University. LemonAId reads inventories, never assay files, and sends nothing anywhere.</span></footer>
   </div>
   <dialog id="intake-dialog" aria-labelledby="intake-title">
-    <div class="dialog-head"><div><div class="eyebrow">BRING WHAT YOU HAVE</div><h2 id="intake-title">Import a project inventory</h2></div><button class="icon-close" data-close="intake-dialog" aria-label="Close import">×</button></div>
-    <p>Use your existing column names. Review the suggested mapping before importing. Original text and unmapped columns are retained.</p>
-    <label class="filebox">Choose CSV or TSV <input type="file" id="inventory-file" accept=".csv,.tsv,text/csv,text/tab-separated-values"></label>
-    <p class="hint">Excel: save the sheet as CSV or TSV first. Any column names work; you will map them on the next step.</p>
-    <label for="paste-data">Or paste a table, including its header row</label><textarea id="paste-data" rows="5" placeholder="Project&#9;Owner&#9;Description"></textarea>
-    <button id="parse-intake" class="button">Review columns</button><div id="import-error" class="error" role="alert"></div><div id="mapping-preview"></div>
-    <hr><label class="filebox">Restore an exported session <input id="session-file" type="file" accept=".json,application/json"></label>
-    <p class="hint">Session restore replaces this browser’s inventory and review notes. Export your current session first if needed.</p>
+    <div class="dialog-head"><div><div class="eyebrow">START WITH WHAT YOU HAVE</div><h2 id="intake-title">Bring your projects into LemonAId</h2></div><button class="icon-close" data-close="intake-dialog" aria-label="Close import">×</button></div>
+    <ol class="steps" aria-label="Import steps"><li class="current" data-step="1">1. Choose your source</li><li data-step="2">2. Match your columns</li><li data-step="3">3. Check and import</li></ol>
+    <div id="intake-step-1">
+      <p>Three ways in. Nothing you choose leaves this browser.</p>
+      <div class="doors">
+        <label class="door"><strong>Choose your projects folder</strong><span>LemonAId lists one project per folder from file names, dates and README text. It never opens an assay file.</span><input type="file" id="folder-input" webkitdirectory directory multiple></label>
+        <label class="door"><strong>Upload a spreadsheet</strong><span>CSV or TSV, one row per project, any column names. From Excel: File, Save As, CSV.</span><input type="file" id="inventory-file" accept=".csv,.tsv,text/csv,text/tab-separated-values"></label>
+        <div class="door"><strong>Start a blank one</strong><span>A template with the columns labs and cores already use, one example row, and a guide to each column.</span><div class="row"><button id="download-template" class="button small">Download the template</button><button id="download-guide" class="button small quiet">Column guide</button><button id="load-example" class="button small">Try the example inventory</button></div></div>
+      </div>
+      <p id="folder-progress" class="hint" role="status"></p>
+      <details><summary class="hint">Other ways in: paste a table, or restore a saved session</summary>
+        <label for="paste-data">Paste a table, including its header row</label><textarea id="paste-data" rows="4" placeholder="Project&#9;Owner&#9;Description"></textarea>
+        <button id="parse-intake" class="button small">Next: match your columns</button>
+        <hr><label class="filebox">Restore a saved session (.json) <input id="session-file" type="file" accept=".json,application/json"></label>
+        <p class="hint">Restoring replaces this browser’s inventory and notes. Export your current session first if you want to keep them.</p>
+      </details>
+    </div>
+    <div id="import-error" class="error" role="alert"></div><div id="mapping-preview"></div>
   </dialog>
   <dialog id="export-dialog" aria-labelledby="export-title">
     <div class="dialog-head"><div><div class="eyebrow">TAKE THE NEXT STEP</div><h2 id="export-title">Export this project’s plan</h2></div><button class="icon-close" data-close="export-dialog" aria-label="Close export">×</button></div>

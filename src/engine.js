@@ -15,9 +15,9 @@
     project_id:['projectid','id','project'], Dataset_Name:['datasetname','dataset','title','projectname','name'],
     lab:['lab','labpi','laboratory','pi','group','primarylab'],
     project_date:['projectdate','projectdata','date','dateregistered'], contact_person:['contactperson','contact','owner','trainee','requester'],
-    genome_reference:['genomereference','genome','species','organism'], reporters:['reporters','reporter'],
-    experiment_type:['experimenttype','assay','assaytype','experiment','platform','datatype'],
-    purpose_of_experiment:['purposeofexperiment','purpose','description','objective','aim'],
+    genome_reference:['genomereference','genome','species','organism','genomereferencespecies'], reporters:['reporters','reporter'],
+    experiment_type:['experimenttype','assay','assaytype','experiment','platform','datatype','typeofexperimentplatform','typeofexperiment'],
+    purpose_of_experiment:['purposeofexperiment','purpose','description','objective','aim','purposeofexperiment'],
     analysis_visualization_link:['analysisvisualizationlink','analysislink','viewer','url','viewerlink'],
     shinyapp_link:['shinyapplink','shiny','shinylink'],
     geo_accession:['geoaccession','geo','accession','sra','publicaccession','repository']
@@ -105,6 +105,91 @@
   // A contact field often carries a note in brackets ("Maria Serrano (folder owner; confirm trainee)").
   // The note is kept on the record; it never becomes part of the person's identity (issue #13).
   function personName(x){const m=clean(x).match(/^(.*?)\s*[\(\[](.*)[\)\]]\s*$/);return m?{name:clean(m[1]),note:clean(m[2])}:{name:clean(x),note:''};}
+  // ---------- v0.8: blank template ----------
+  // Column labels follow the Bioinformatics Core's sample-submission form where the two overlap, so a lab that
+  // fills this template has already filled the Core's intake; the remaining columns come from the trainee
+  // experiment-organisation sheet (where the data, notes and processed files live, status, outcome).
+  const TEMPLATE_COLUMNS=[
+    ['Project ID','A short code you already use for the project folder or notebook, for example iPSC_S8_RNAseq.'],
+    ['Dataset Name','What you would call this dataset in a talk or a methods section.'],
+    ['Contact Person','Who to ask about it today. A name; add an email if the person may leave the lab.'],
+    ['Laboratory','Your lab or PI. One short name, the same spelling on every row.'],
+    ['Type of Experiment / Platform','As you would tell the Core: 10x scRNA-seq, bulk RNA-seq, CUT&RUN, spectral flow cytometry, imaging.'],
+    ['Genome Reference / Species','Human, mouse, zebrafish; add the assembly if you know it (GRCh38, GRCm39, GRCz11).'],
+    ['Reporters','Reporter or engineered lines used, for example a lineage-GFP line; write None if none.'],
+    ['Purpose of experiment','One or two sentences: what question the experiment asked.'],
+    ['Description of Samples','What the samples were: conditions, time points, replicates. Detail here saves a round trip later.'],
+    ['Public accession','GEO, SRA, ArrayExpress or other repository ID if the data is deposited; leave blank if not.'],
+    ['Project date','When the project started (YYYY-MM-DD); the date of the oldest file is fine.'],
+    ['Raw data location','Where the primary files are: a server path, a drive, a core facility. Not the files themselves.'],
+    ['Processed data location','Where matrices, counts or statistics tables live.'],
+    ['Notes location','Where the lab notebook or experiment notes for this project are.'],
+    ['Sample sheet location','The file that maps every sample name to its group or condition (the Core calls these Sample Name and Group Annotation).'],
+    ['Analysis status','Not started, in progress, complete, or published.'],
+    ['Outcome','One line on what came of it, including a negative or inconclusive result.']
+  ];
+  const TEMPLATE_EXAMPLE=['EX_001','Example: cell-cycle RNA-seq in KMT2D-null iPSCs','A. Scientist, ascientist@university.edu','Example Lab','Bulk RNA-seq','Human, GRCh38','None','Does loss of KMT2D change phase-specific transcription at the G1/S transition?','WT and KMT2D-null iPSCs sorted into G0/G1 and S/G2/M fractions; 3 biological replicates per genotype and phase','','2026-02-17','lab-server:/projects/EX_001/fastq','lab-server:/projects/EX_001/counts','Lab notebook 12, pp. 40-58','lab-server:/projects/EX_001/sample_sheet.csv','In progress','Preliminary: S-phase genes down in KMT2D-null'];
+  function templateCSV(){const q=v=>'"'+String(v).replace(/"/g,'""')+'"';return [TEMPLATE_COLUMNS.map(([c])=>q(c)).join(','),TEMPLATE_EXAMPLE.map(q).join(',')].join('\n')+'\n';}
+  function templateGuideMarkdown(){return '# What goes in each column\n\nOne row per project. Fill what you know; leave the rest blank, and LemonAId will list it as a gap. Column names match the Bioinformatics Core\'s sample-submission form where they overlap.\n\n'+TEMPLATE_COLUMNS.map(([c,h])=>`- **${c}**: ${h}`).join('\n')+'\n';}
+  // ---------- v0.8: inventory from a folder ----------
+  // Build an inventory from a file listing: one row per top-level folder. Input is what a browser's folder
+  // picker (webkitdirectory) or a directory walk yields: {path (relative, "/"-separated), size, modified (ms),
+  // text?}. Only names, sizes, dates and the text of README or notebook files are used; assay files are never
+  // read. Every guessed value is marked "[inferred ...]" and listed in inferred_fields, like the 21 October
+  // Serrano Lab inventory that this reproduces.
+  const SKIP_DIRS=/^(\.|node_modules$|renv$|__pycache__$|\.git$|\.Rproj\.user$|venv$|\.venv$)/;
+  const README_RE=/^readme(\.(md|txt|rst))?$/i, NOTEBOOK_RE=/\.(qmd|rmd|ipynb)$/i;
+  const SAMPLE_SHEET_RE=/(sample[_ -]?(sheet|info|metadata|manifest)|samplesheet|metadata|design)\.(csv|tsv|xlsx?|txt)$/i;
+  const ASSAY_HINTS=[[/\.fcs$/i,'Flow cytometry (FCS files)'],[/\.(fastq|fq)(\.gz)?$|\.bam$|\.cram$/i,'Sequencing (type to confirm)'],[/\.h5ad$|\.rds$|\.loom$|\.mtx(\.gz)?$/i,'Single-cell or processed matrices (type to confirm)'],[/\.(czi|nd2|lif|tif{1,2})$/i,'Imaging (type to confirm)'],[/\.(bw|bigwig|narrowpeak|broadpeak|bed)(\.gz)?$/i,'Peaks or coverage tracks (type to confirm)']];
+  function titleFromText(text){
+    if(!text)return '';
+    const t=String(text).replace(/\r/g,'');
+    const fmBlock=t.match(/^---\n([\s\S]*?)\n---/);const fm=fmBlock&&fmBlock[1].match(/^title:\s*["']?(.+?)["']?\s*$/m);if(fm)return clean(fm[1]);
+    const h=t.match(/^\s*#\s+(.+)$/m);if(h)return clean(h[1]);
+    const nb=t.match(/"source":\s*\[\s*"#\s+([^"\\]+)/);if(nb)return clean(nb[1]);
+    const line=t.split('\n').map(x=>x.trim()).find(x=>x&&!/^[-=*_`<>|!\[]/.test(x));return line?clean(line.slice(0,160)):'';
+  }
+  function purposeFromText(text){
+    if(!text)return '';
+    const body=String(text).replace(/\r/g,'').replace(/^---\n[\s\S]*?\n---\n?/,'').split('\n').map(x=>x.trim()).filter(x=>x&&!/^#|^[-=*_`<>|!\[]|^\s*$/.test(x)).join(' ');
+    return body?body.slice(0,400):'';
+  }
+  function inventoryFromFolder(files,opts={}){
+    const lab=opts.lab||'',contact=opts.contact||'';
+    const byProject=new Map();
+    // A browser's folder picker prefixes every path with the chosen folder's name; drop that common root.
+    const split=files.map(f=>String(f.path||'').split('/').filter(Boolean));
+    const root=split.length&&split.every(p=>p.length>1&&p[0]===split[0][0])?1:0;
+    for(let i=0;i<files.length;i++){
+      const f=files[i],parts=split[i].slice(root);if(parts.length<2)continue;
+      if(parts.some(seg=>SKIP_DIRS.test(seg)))continue;
+      const name=parts[0];if(!byProject.has(name))byProject.set(name,{name,files:[],readme:null,notebook:null,oldest:Infinity,newest:0,bytes:0,sheets:[]});
+      const pj=byProject.get(name),base=parts[parts.length-1];pj.files.push(base);pj.bytes+=Number(f.size)||0;
+      const m=Number(f.modified)||0;if(m){pj.oldest=Math.min(pj.oldest,m);pj.newest=Math.max(pj.newest,m);}
+      if(README_RE.test(base)&&(parts.length===2||!pj.readme)&&f.text!=null)pj.readme={depth:parts.length,text:f.text,name:parts.slice(1).join('/')};
+      if(NOTEBOOK_RE.test(base)&&!pj.notebook&&f.text!=null)pj.notebook={text:f.text,name:parts.slice(1).join('/')};
+      if(SAMPLE_SHEET_RE.test(base))pj.sheets.push(parts.slice(1).join('/'));
+    }
+    const headers=['project_id','Dataset_Name','Lab_PI','project_date','contact_person','genome_reference','reporters','experiment_type','purpose_of_experiment','analysis_visualization_link','shinyapp_link','geo_accession','category','lab_assignment','purpose_source','inferred_fields','files_on_disk','size_MB','file_types','readme','sample_sheet_candidates'];
+    const rows=[...byProject.values()].sort((a,b)=>a.name.localeCompare(b.name)).map((pj,i)=>{
+      const inferred=[];
+      const title=titleFromText(pj.readme&&pj.readme.text)||titleFromText(pj.notebook&&pj.notebook.text);
+      const Dataset_Name=title||pj.name;if(title)inferred.push('Dataset_Name (README or notebook title)');
+      const purpose=purposeFromText(pj.readme&&pj.readme.text);
+      const date=isFinite(pj.oldest)?new Date(pj.oldest).toISOString().slice(0,10):'';if(date)inferred.push('project_date (oldest file)');
+      const types={};for(const b of pj.files){const ext=(b.match(/\.([a-z0-9]+)(\.gz)?$/i)||[])[1];if(ext)types[ext.toLowerCase()]=(types[ext.toLowerCase()]||0)+1;}
+      const topTypes=Object.entries(types).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v])=>`${k}: ${v}`).join('; ');
+      const assay=(ASSAY_HINTS.find(([re])=>pj.files.some(b=>re.test(b)))||[])[1]||'';if(assay)inferred.push('experiment_type (from file types)');
+      const text=(Dataset_Name+' '+purpose).toLowerCase();
+      const organism=/zebrafish|danio|\bzf\b/.test(text)?'Zebrafish':/\bmouse|murine|\bmm10|grcm/.test(text)?'Mouse':/human|ipsc|hipsc|hg38|grch38/.test(text)?'Human':'';if(organism)inferred.push('genome_reference (from name or README)');
+      const raw={project_id:pj.name,Dataset_Name,Lab_PI:lab,project_date:date,contact_person:contact,genome_reference:organism,reporters:'',experiment_type:assay,
+        purpose_of_experiment:purpose?'[inferred from README] '+purpose:'[no README or notebook title found]',analysis_visualization_link:'',shinyapp_link:'',geo_accession:'',
+        category:'Investigator',lab_assignment:lab?'recorded':'none',purpose_source:purpose?'readme_prose':'none',inferred_fields:inferred.length?inferred.join(', ')+'; verify before use':'',
+        files_on_disk:String(pj.files.length),size_MB:String(Math.round(pj.bytes/1048576)),file_types:topTypes,readme:[pj.readme&&pj.readme.name,pj.notebook&&pj.notebook.name].filter(Boolean).join('; '),sample_sheet_candidates:pj.sheets.slice(0,5).join('; ')};
+      return {key:`folder-${i+2}`,row:i+2,raw};
+    });
+    return {headers,rows,delimiter:',',projects:rows.length,files:files.length};
+  }
   function species(p){
     const x=p.genome_reference;
     if(missing(x))return {organism:'Unknown',assembly:'Unknown'};
@@ -435,6 +520,6 @@
   }
 
   function csv(rows){return rows.map(r=>r.map(x=>{let s=String(x??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');}
-  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,SHORTLIST_TIEBREAK,personName,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,QUERIES_SOURCE,NEEDS,GENERAL_QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
+  const api={inventoryFromFolder,TEMPLATE_COLUMNS,templateCSV,templateGuideMarkdown,titleFromText,FIELDS,READINESS_FIELDS,READINESS_RULE,SHORTLIST_TIEBREAK,personName,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,QUERIES_SOURCE,NEEDS,GENERAL_QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.CREM=api;
 })(typeof window!=='undefined'?window:globalThis);
