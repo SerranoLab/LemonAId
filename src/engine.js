@@ -68,9 +68,10 @@
     return {headers,rows:rows.map((r,i)=>({key:`import-${i+2}`,row:i+2,raw:Object.fromEntries(headers.map((h,j)=>[h,r[j]]))})),delimiter};
   }
   function classify(p){const tags=classifyAssay(p),n=accessionNote(p);if(n)tags.push(n);return tags;}
-  function classifyAssay(p){
-    const text=(missing(p.experiment_type)?'':p.experiment_type+' ')+p.Dataset_Name+' '+p.purpose_of_experiment, tags=[];
-    const a=missing(p.experiment_type)?'':p.experiment_type;
+  // Tags from the assay field alone. This is the only input a normalisation proposal may use, so that every
+  // project sharing a source string gets the same proposed term (issue #11).
+  function assayFromField(a){
+    const tags=[];a=missing(a)?'':a;
     const fluidigm=/fluidigm|\bc1\b/i.test(a);
     if(fluidigm)tags.push('Fluidigm single-cell recorded');
     if(!fluidigm&&/10x|chromium|single[ -]?cell|scrna|sc[ -]?rna|indrops|parse|flex|gem-x|ocm/i.test(a)&&!/atac|multiome/i.test(a))tags.push('scRNA-seq recorded');
@@ -79,26 +80,39 @@
     if(/bulk|rsem|plasmidsaurus|mrna[ -]?seq/i.test(a))tags.push('Bulk RNA-seq recorded');
     if(/cut\s*&\s*run|cut&tag|chip/i.test(a))tags.push('CUT&RUN / ChIP recorded');
     if(/micro ?array/i.test(a))tags.push('Microarray recorded');
+    return tags;
+  }
+  function classifyAssay(p){
+    const text=(missing(p.experiment_type)?'':p.experiment_type+' ')+p.Dataset_Name+' '+p.purpose_of_experiment;
+    const tags=assayFromField(p.experiment_type);
     // The title and the assay field can disagree; surface it rather than trusting either.
     const titleBulk=/\bbulk\b/i.test(p.Dataset_Name),titleSingle=/scRNA|single[ -]cell|10x|snRNA/i.test(p.Dataset_Name);
     if(tags.length&&((titleBulk&&!tags.some(t=>/Bulk/.test(t)))||(titleSingle&&!tags.some(t=>/scRNA|snRNA|Fluidigm|ATAC/.test(t)))))tags.push('Title and assay field disagree');
     if(tags.length)return tags;
-    if(/scRNA[ -]?seq|single[ -]cell RNA[ -]?seq|scRNAseq/i.test(text))tags.push('scRNA-seq stated');
-    else if(/single[ -]cell/i.test(text))tags.push('single-cell stated, platform unclear');
-    if(/sn[ -]?RNA[ -]?seq/i.test(text))tags.push('snRNA-seq stated');
-    if(/scATAC|snATAC|ATAC[ -]?seq|multiome/i.test(text))tags.push('ATAC / multiome stated');
-    if(/bulk RNA[ -]?seq/i.test(text))tags.push('Bulk RNA-seq stated');
-    if(/CUT\s*&\s*RUN/i.test(text))tags.push('CUT&RUN stated');
-    if(/flow cytometr|FACS/i.test(text))tags.push('Flow mentioned');
+    // Below: hints from the title or purpose text. They are per project and never become a controlled term;
+    // the normalisation table proposes nothing for them and the plan asks the owner to confirm the assay.
+    if(/scRNA[ -]?seq|single[ -]cell RNA[ -]?seq|scRNAseq/i.test(text))tags.push('scRNA-seq in text, confirm assay');
+    else if(/single[ -]cell/i.test(text))tags.push('single-cell in text, platform unclear, confirm assay');
+    if(/sn[ -]?RNA[ -]?seq/i.test(text))tags.push('snRNA-seq in text, confirm assay');
+    if(/scATAC|snATAC|ATAC[ -]?seq|multiome/i.test(text))tags.push('ATAC / multiome in text, confirm assay');
+    if(/bulk RNA[ -]?seq/i.test(text))tags.push('Bulk RNA-seq in text, confirm assay');
+    if(/CUT\s*&\s*RUN/i.test(text))tags.push('CUT&RUN in text, confirm assay');
+    if(/flow cytometr|FACS/i.test(text))tags.push('flow cytometry in text, confirm assay');
     return tags.length?tags:['Assay type to confirm'];
   }
+  // NCBI Taxonomy CURIEs for the organisms the inventories name. A mixed record gets none; the plan asks for one per sample.
+  const TAXON={Human:'NCBITaxon:9606',Mouse:'NCBITaxon:10090',Zebrafish:'NCBITaxon:7955',Rat:'NCBITaxon:10116',Ferret:'NCBITaxon:9669'};
+  // A contact field often carries a note in brackets ("Maria Serrano (folder owner; confirm trainee)").
+  // The note is kept on the record; it never becomes part of the person's identity (issue #13).
+  function personName(x){const m=clean(x).match(/^(.*?)\s*[\(\[](.*)[\)\]]\s*$/);return m?{name:clean(m[1]),note:clean(m[2])}:{name:clean(x),note:''};}
   function species(p){
     const x=p.genome_reference;
     if(missing(x))return {organism:'Unknown',assembly:'Unknown'};
     const hu=/human|homo sapiens|hg38|grch38/i.test(x),mo=/mouse|mus musculus|grcm39|mm10|mm39/i.test(x);
-    let organism=hu&&mo?'Human and mouse (mixed)':hu?'Human':mo?'Mouse':/ferret/i.test(x)?'Ferret':/\brat\b|rattus/i.test(x)?'Rat':'Unresolved';
-    let assembly=(x.match(/GRCh38|GRCm39|GRCm38|hg38|hg19|mm10|mm39/i)||[])[0]||'Not supplied';
-    return {organism,assembly};
+    const zf=/zebrafish|danio|grcz|danrer/i.test(x),fe=/ferret|mustela/i.test(x),rat=/\brat\b|rattus|rnor/i.test(x);
+    let organism=hu&&mo?'Human and mouse (mixed)':hu?'Human':mo?'Mouse':zf?'Zebrafish':fe?'Ferret':rat?'Rat':'Unresolved';
+    let assembly=(x.match(/GRCh38|GRCm39|GRCm38|hg38|hg19|mm10|mm39|GRCz11|GRCz10|danRer11|danRer10|Rnor_6\.0|mRatBN7/i)||[])[0]||'Not supplied';
+    return {organism,assembly,taxon:TAXON[organism]||''};
   }
   const QUESTIONS = [
     {id:'rna',label:'Are the primary data files located?',options:[['unknown','Not yet checked'],['yes','Located'],['no','Unavailable for this project']],why:'A project description, viewer link or accession does not by itself establish access to the files.'},
@@ -127,8 +141,16 @@
     const next=missingCtx.length?'Recover '+missingCtx.map(f=>({Dataset_Name:'name',contact_person:'contact',experiment_type:'assay type',genome_reference:'organism'})[f]).join(', '):'Locate files, confirm reuse terms, deposit';
     return {score:ctx+(viewer?2:0)+(recent?1:0),viewer,recent,next,shared:hasAccession(p)};
   }
-  function shortlist(records,map,n=10){
-    return records.map(r=>{const p=canonical(r,map);return {record:r,p,...readiness(p)};}).filter(x=>!x.shared).sort((a,b)=>b.score-a.score||String(b.p.project_date).localeCompare(String(a.p.project_date))).slice(0,n);
+  // Ties are broken by evidence answered (reviews), then by the most recent date, and the rule is printed
+  // on screen. shortlist also reports how many projects share the top score, so a top ten of equals is
+  // never presented as a ranking (issue #12).
+  const SHORTLIST_TIEBREAK='Ties are ordered by evidence answered, then by the most recent project date.';
+  function shortlist(records,map,n=10,reviews={}){
+    const answered=r=>{const a=(reviews[r.key]||{}).answers||{};return Object.values(a).filter(x=>x&&x.value&&x.value!=='unknown'&&clean(x.evidence)).length;};
+    const all=records.map(r=>{const p=canonical(r,map);return {record:r,p,...readiness(p),answered:answered(r)};}).filter(x=>!x.shared)
+      .sort((a,b)=>b.score-a.score||b.answered-a.answered||String(b.p.project_date).localeCompare(String(a.p.project_date)));
+    const top=all.length?all[0].score:0,tied=all.filter(x=>x.score===top).length;
+    const list=all.slice(0,n);list.tied=tied;list.top=top;list.total=all.length;return list;
   }
   // Which of the readiness fields a record has filled in, for the inventory summary.
   function completeness(records,map){
@@ -211,8 +233,8 @@
     return 'recorded';
   }
   // Normalisation: proposed controlled term per distinct source string, for assay and organism.
-  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=classify(p).filter(x=>!/confirm|disagree|Accession field/.test(x));return t.length?t[0].replace(/ (recorded|stated)$/,''):'';}},
-                      genome_reference:{label:'Organism',ontology:'NCBITaxon',namespace:'NCBITaxon:',biolink:'biolink:OrganismTaxon',propose:p=>{const o=species(p).organism;return o==='Unknown'||o==='Unresolved'?'':o;}}};
+  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=assayFromField(p.experiment_type);return t.length?t[0].replace(/ recorded$/,''):'';}},
+                      genome_reference:{label:'Organism',ontology:'NCBITaxon',namespace:'NCBITaxon:',biolink:'biolink:OrganismTaxon',propose:p=>{const sp=species(p);return sp.taxon?`${sp.organism} (${sp.taxon})`:'';}}};
   function normTable(records,map,overrides={}){
     const out={};
     for(const f of Object.keys(NORM_TARGETS)){
@@ -229,7 +251,7 @@
   const yes=(a,id,...vals)=>{const x=a&&a[id];return !!(x&&clean(x.evidence)&&(vals.length?vals.includes(x.value):x.value!=='unknown'&&x.value!=='no'));};
   const QUERIES=[
     {id:'markers',title:'Which clusters, across all experiments, have SFTPC and NKX2-1 among their top markers?',source:'CReM-KG explainer, use 1',needs:[
-      ['single-cell assay recorded',(p,t)=>t.some(x=>/scRNA|snRNA|single-cell|Fluidigm/.test(x))],
+      ['single-cell assay recorded',(p,t)=>t.some(x=>/^(scRNA|snRNA|Fluidigm single-cell|ATAC \/ multiome).* recorded$/.test(x))],
       ['expression files located',(p,t,a)=>yes(a,'rna','yes')],
       ['cell labels and gene identifiers documented',(p,t,a)=>yes(a,'annotation','yes')]]},
     {id:'lines',title:'Which of our lines model cells where a given disease gene acts?',source:'CReM-KG explainer, metapath Disease to Gene to Cell type to iPSC line',needs:[
@@ -288,9 +310,9 @@
       const p=canonical(r,map),src=`row ${r.row}`,rev=reviews[r.key]||{},a=rev.answers||{};
       const pid=node('project:'+slug(p.project_id||'row-'+r.row),'Project',p.Dataset_Name||p.project_id,{biolink_category:'biolink:Study',project_id:p.project_id,date:p.project_date,purpose:p.purpose_of_experiment,purpose_provenance:provenanceOf(r,pmap,'purpose_of_experiment'),source_row:r.row});
       if(!missing(p.lab))for(const l of p.lab.split(/;\s*/)){const lid=node('lab:'+slug(l),'Lab',l,{biolink_category:'biolink:Agent'});edge(pid,'IN_LAB',lid,provenanceOf(r,pmap,'lab'),src);}
-      if(!missing(p.contact_person)){const cid=node('person:'+slug(p.contact_person),'Person',p.contact_person,{biolink_category:'biolink:Agent'});edge(pid,'HAS_CONTACT',cid,'recorded',src);}
+      if(!missing(p.contact_person)){const nm=personName(p.contact_person);const cid=node('person:'+slug(nm.name),'Person',nm.name,{biolink_category:'biolink:Agent',note:nm.note});edge(pid,'HAS_CONTACT',cid,'recorded',src,nm.note?'note in source: '+nm.note:'');}
       const normProv=(f,v)=>{const row=(norm[f]||[]).find(x=>x.original===clean(v));return row&&row.reviewer?'reviewed':'normalised';};
-      if(!missing(p.genome_reference)){const term=termFor(norm,'genome_reference',p.genome_reference)||species(p).organism;const oid=node('organism:'+slug(term),'Organism',term,{biolink_category:'biolink:OrganismTaxon',ontology:'NCBITaxon (to resolve)'});edge(pid,'USES_ORGANISM',oid,term===p.genome_reference?'recorded':normProv('genome_reference',p.genome_reference),src,'source string: '+p.genome_reference);}
+      if(!missing(p.genome_reference)){const term=termFor(norm,'genome_reference',p.genome_reference)||species(p).organism;const sp=species(p),curie=(term.match(/NCBITaxon:\d+/)||[])[0]||(term===sp.organism?sp.taxon:'');const oid=node(curie||'organism:'+slug(term),'Organism',term.replace(/\s*\(NCBITaxon:\d+\)$/,''),{biolink_category:'biolink:OrganismTaxon',ontology:curie?'NCBITaxon':'NCBITaxon (to resolve)'});edge(pid,'USES_ORGANISM',oid,term===p.genome_reference?'recorded':normProv('genome_reference',p.genome_reference),src,'source string: '+p.genome_reference);}
       if(!missing(p.experiment_type)){const term=termFor(norm,'experiment_type',p.experiment_type)||p.experiment_type;const aid=node('assay:'+slug(term),'Assay',term,{biolink_category:'biolink:Procedure',ontology:'OBI/EFO (to resolve)'});edge(pid,'HAS_ASSAY',aid,term===p.experiment_type?'recorded':normProv('experiment_type',p.experiment_type),src,'source string: '+p.experiment_type);}
       if(!missing(p.reporters)){const rid=node('reporter:'+slug(p.reporters).slice(0,60),'ReporterDescription',p.reporters,{biolink_category:'biolink:InformationContentEntity'});edge(pid,'USES_REPORTER',rid,'recorded',src,'free text; resolve to iPSC line and gene symbols at sample ingest');}
       for(const [f,role] of [['shinyapp_link','Shiny viewer'],['analysis_visualization_link','Interactive viewer']])if(!missing(p[f]))for(const u of p[f].split(/;\s*/)){const did=node('resource:'+slug(u).slice(0,80),'DataResource',u,{biolink_category:'biolink:InformationResource',role});edge(pid,'HAS_RESOURCE',did,'recorded',src);}
@@ -405,6 +427,6 @@
   }
 
   function csv(rows){return rows.map(r=>r.map(x=>{let s=String(x??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');}
-  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
+  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,SHORTLIST_TIEBREAK,personName,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.CREM=api;
 })(typeof window!=='undefined'?window:globalThis);

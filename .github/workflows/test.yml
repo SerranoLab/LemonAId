@@ -12,6 +12,11 @@ jobs:
         with:
           node-version: "22"
       - run: node build.cjs
+      - name: committed dist/ is exactly what the source builds
+        run: git diff --exit-code -- dist/
+      - name: no hand-written version labels in the source
+        run: |
+          ! grep -nE 'planner v0\.[0-9]|prototype · v0\.[0-9]' src/*.js src/*.html
       - run: node --test tests/engine.test.cjs tests/app.test.cjs
       - uses: actions/setup-python@v5
         with:

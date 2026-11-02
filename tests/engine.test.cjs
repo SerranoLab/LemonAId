@@ -97,7 +97,7 @@ test('CSV downloads escape quotes and neutralize spreadsheet formula prefixes',(
  const result=E.csv([['=HYPERLINK("bad")','@SUM(1)','-cmd','normal, text']]);assert.ok(result.startsWith('"\'=HYPERLINK'));assert.ok(result.includes('"\'@SUM'));assert.ok(result.includes('"normal, text"'));
 });
 test('source NA stays absent without conflating explicit no-reporter text with missingness',()=>{
- assert.ok(E.missing('NA'));assert.ok(!E.missing('No reporters'));assert.ok(!E.missing('None, cells labeled with GFP lentivirus'));assert.deepEqual(E.species({genome_reference:'Human'}),{organism:'Human',assembly:'Not supplied'});assert.equal(E.species({genome_reference:'Human and Mouse'}).organism,'Human and mouse (mixed)');
+ assert.ok(E.missing('NA'));assert.ok(!E.missing('No reporters'));assert.ok(!E.missing('None, cells labeled with GFP lentivirus'));assert.deepEqual(E.species({genome_reference:'Human'}),{organism:'Human',assembly:'Not supplied',taxon:'NCBITaxon:9606'});assert.equal(E.species({genome_reference:'Human and Mouse'}).organism,'Human and mouse (mixed)');
 });
 
 reg('start-here shortlist excludes shared projects, ranks by recorded context and names the next step',()=>{
@@ -153,4 +153,45 @@ test('panel manifest from real FCS headers links files to inventory reagents in 
  const reviews={[row.key]:{answers:{},validation:{panel:man}}};const g=E.graphExport([row],m,E.provenanceMap(Object.keys(row.raw)),reviews,{},reagents);
  assert.equal(g.nodes.filter(n=>n.label==='DataFile').length,29);const rg=g.nodes.filter(n=>n.label==='Reagent');assert.equal(rg.length,8);assert.ok(rg.find(n=>n.reagent_id==='AB228'&&/647/.test(n.conjugation)));
  const sw=g.edges.filter(e=>e.relation==='STAINED_WITH');assert.equal(sw.length,29*8);assert.equal(g.edges.filter(e=>e.relation==='HAS_FILE').length,29);assert.deepEqual([...new Set(sw.map(e=>e.provenance))].sort(),['candidate','proposed']);
+});
+
+test('#11: a normalisation proposal depends only on the assay field, so projects sharing a source string agree with their own row',()=>{
+ const bulkText={experiment_type:'Sequencing (type to confirm)',Dataset_Name:'Pericyte RNA-seq',purpose_of_experiment:'bulk RNA seq of pericytes'};
+ const flowText={experiment_type:'Sequencing (type to confirm)',Dataset_Name:'Cell cycle RNA-seq',purpose_of_experiment:'cells sorted on the EpiFlow spectral flow cytometry platform'};
+ const m={...E.DEFAULT_MAP};const recs=[bulkText,flowText].map((p,i)=>({key:'k'+i,row:i+2,raw:p}));
+ const norm=E.normTable(recs,m);
+ assert.equal(norm.experiment_type.length,1,'one source string');
+ assert.equal(norm.experiment_type[0].proposed,'','text hints never become a proposed term');
+ assert.equal(norm.experiment_type[0].status,'unmapped');
+ assert.deepEqual(E.classify(bulkText),['Bulk RNA-seq in text, confirm assay']);
+ assert.deepEqual(E.classify(flowText),['flow cytometry in text, confirm assay']);
+ const g=E.graphExport(recs,m,{},{},norm);
+ for(const e of g.edges.filter(e=>e.relation==='HAS_ASSAY'))assert.equal(e.target,'assay:sequencing-type-to-confirm','graph keeps the source string when nothing is proposed');
+});
+
+test('#14: organisms get NCBITaxon CURIEs; zebrafish is recognised; unknown strings stay unresolved',()=>{
+ assert.equal(E.species({genome_reference:'Zebrafish'}).taxon,'NCBITaxon:7955');
+ assert.equal(E.species({genome_reference:'GRCz11'}).organism,'Zebrafish');
+ assert.equal(E.species({genome_reference:'Human'}).taxon,'NCBITaxon:9606');
+ assert.equal(E.species({genome_reference:'Human and mouse'}).taxon,'','a mixed record gets no single CURIE');
+ assert.equal(E.species({genome_reference:'Axolotl'}).organism,'Unresolved');
+ const m={...E.DEFAULT_MAP};const recs=[{key:'a',row:2,raw:{genome_reference:'Zebrafish',experiment_type:'',Dataset_Name:'',purpose_of_experiment:''}}];
+ const norm=E.normTable(recs,m);assert.equal(norm.genome_reference[0].proposed,'Zebrafish (NCBITaxon:7955)');
+ const g=E.graphExport(recs,m,{},{},norm);const e=g.edges.find(e=>e.relation==='USES_ORGANISM');assert.equal(e.target,'NCBITaxon:7955');
+ assert.equal(g.nodes.find(n=>n.id==='NCBITaxon:7955').name,'Zebrafish');
+});
+
+test('#13: a bracketed note in the contact field stays a note, not part of the person id',()=>{
+ assert.deepEqual(E.personName('Maria Serrano (folder owner; confirm trainee)'),{name:'Maria Serrano',note:'folder owner; confirm trainee'});
+ assert.deepEqual(E.personName('Lauren'),{name:'Lauren',note:''});
+ const m={...E.DEFAULT_MAP};const recs=[1,2].map(i=>({key:'k'+i,row:i+1,raw:{contact_person:i===1?'Maria Serrano (folder owner; confirm trainee)':'Maria Serrano (confirm)',Dataset_Name:'',experiment_type:'',purpose_of_experiment:'',genome_reference:''}}));
+ const g=E.graphExport(recs,m,{},{},{});const people=g.nodes.filter(n=>n.label==='Person');
+ assert.equal(people.length,1);assert.equal(people[0].id,'person:maria-serrano');assert.equal(people[0].name,'Maria Serrano');
+});
+test('#12: the shortlist breaks ties by evidence answered, then date, and reports how many share the top score',()=>{
+ const m={...E.DEFAULT_MAP};const mk=(id,date)=>({key:id,row:1,raw:{project_id:id,Dataset_Name:id,contact_person:'x',experiment_type:'Bulk RNA-seq',genome_reference:'Human',purpose_of_experiment:'p',project_date:date,geo_accession:''}});
+ const recs=[mk('old','2024-01-01'),mk('new','2025-01-01'),mk('answered','2023-01-01')];
+ const reviews={answered:{answers:{rna:{value:'yes',evidence:'on the server'}}}};
+ const list=E.shortlist(recs,m,10,reviews);
+ assert.equal(list.tied,3);assert.equal(list.top,6);assert.deepEqual(list.map(x=>x.p.project_id),['answered','new','old']);
 });
