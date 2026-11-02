@@ -68,9 +68,10 @@
     return {headers,rows:rows.map((r,i)=>({key:`import-${i+2}`,row:i+2,raw:Object.fromEntries(headers.map((h,j)=>[h,r[j]]))})),delimiter};
   }
   function classify(p){const tags=classifyAssay(p),n=accessionNote(p);if(n)tags.push(n);return tags;}
-  function classifyAssay(p){
-    const text=(missing(p.experiment_type)?'':p.experiment_type+' ')+p.Dataset_Name+' '+p.purpose_of_experiment, tags=[];
-    const a=missing(p.experiment_type)?'':p.experiment_type;
+  // Tags from the assay field alone. This is the only input a normalisation proposal may use, so that every
+  // project sharing a source string gets the same proposed term (issue #11).
+  function assayFromField(a){
+    const tags=[];a=missing(a)?'':a;
     const fluidigm=/fluidigm|\bc1\b/i.test(a);
     if(fluidigm)tags.push('Fluidigm single-cell recorded');
     if(!fluidigm&&/10x|chromium|single[ -]?cell|scrna|sc[ -]?rna|indrops|parse|flex|gem-x|ocm/i.test(a)&&!/atac|multiome/i.test(a))tags.push('scRNA-seq recorded');
@@ -79,17 +80,24 @@
     if(/bulk|rsem|plasmidsaurus|mrna[ -]?seq/i.test(a))tags.push('Bulk RNA-seq recorded');
     if(/cut\s*&\s*run|cut&tag|chip/i.test(a))tags.push('CUT&RUN / ChIP recorded');
     if(/micro ?array/i.test(a))tags.push('Microarray recorded');
+    return tags;
+  }
+  function classifyAssay(p){
+    const text=(missing(p.experiment_type)?'':p.experiment_type+' ')+p.Dataset_Name+' '+p.purpose_of_experiment;
+    const tags=assayFromField(p.experiment_type);
     // The title and the assay field can disagree; surface it rather than trusting either.
     const titleBulk=/\bbulk\b/i.test(p.Dataset_Name),titleSingle=/scRNA|single[ -]cell|10x|snRNA/i.test(p.Dataset_Name);
     if(tags.length&&((titleBulk&&!tags.some(t=>/Bulk/.test(t)))||(titleSingle&&!tags.some(t=>/scRNA|snRNA|Fluidigm|ATAC/.test(t)))))tags.push('Title and assay field disagree');
     if(tags.length)return tags;
-    if(/scRNA[ -]?seq|single[ -]cell RNA[ -]?seq|scRNAseq/i.test(text))tags.push('scRNA-seq stated');
-    else if(/single[ -]cell/i.test(text))tags.push('single-cell stated, platform unclear');
-    if(/sn[ -]?RNA[ -]?seq/i.test(text))tags.push('snRNA-seq stated');
-    if(/scATAC|snATAC|ATAC[ -]?seq|multiome/i.test(text))tags.push('ATAC / multiome stated');
-    if(/bulk RNA[ -]?seq/i.test(text))tags.push('Bulk RNA-seq stated');
-    if(/CUT\s*&\s*RUN/i.test(text))tags.push('CUT&RUN stated');
-    if(/flow cytometr|FACS/i.test(text))tags.push('Flow mentioned');
+    // Below: hints from the title or purpose text. They are per project and never become a controlled term;
+    // the normalisation table proposes nothing for them and the plan asks the owner to confirm the assay.
+    if(/scRNA[ -]?seq|single[ -]cell RNA[ -]?seq|scRNAseq/i.test(text))tags.push('scRNA-seq in text, confirm assay');
+    else if(/single[ -]cell/i.test(text))tags.push('single-cell in text, platform unclear, confirm assay');
+    if(/sn[ -]?RNA[ -]?seq/i.test(text))tags.push('snRNA-seq in text, confirm assay');
+    if(/scATAC|snATAC|ATAC[ -]?seq|multiome/i.test(text))tags.push('ATAC / multiome in text, confirm assay');
+    if(/bulk RNA[ -]?seq/i.test(text))tags.push('Bulk RNA-seq in text, confirm assay');
+    if(/CUT\s*&\s*RUN/i.test(text))tags.push('CUT&RUN in text, confirm assay');
+    if(/flow cytometr|FACS/i.test(text))tags.push('flow cytometry in text, confirm assay');
     return tags.length?tags:['Assay type to confirm'];
   }
   function species(p){
@@ -211,7 +219,7 @@
     return 'recorded';
   }
   // Normalisation: proposed controlled term per distinct source string, for assay and organism.
-  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=classify(p).filter(x=>!/confirm|disagree|Accession field/.test(x));return t.length?t[0].replace(/ (recorded|stated)$/,''):'';}},
+  const NORM_TARGETS={experiment_type:{label:'Assay type',ontology:'OBI / EFO assay term',namespace:'OBI: or EFO:',biolink:'biolink:Procedure',propose:p=>{const t=assayFromField(p.experiment_type);return t.length?t[0].replace(/ recorded$/,''):'';}},
                       genome_reference:{label:'Organism',ontology:'NCBITaxon',namespace:'NCBITaxon:',biolink:'biolink:OrganismTaxon',propose:p=>{const o=species(p).organism;return o==='Unknown'||o==='Unresolved'?'':o;}}};
   function normTable(records,map,overrides={}){
     const out={};
@@ -229,7 +237,7 @@
   const yes=(a,id,...vals)=>{const x=a&&a[id];return !!(x&&clean(x.evidence)&&(vals.length?vals.includes(x.value):x.value!=='unknown'&&x.value!=='no'));};
   const QUERIES=[
     {id:'markers',title:'Which clusters, across all experiments, have SFTPC and NKX2-1 among their top markers?',source:'CReM-KG explainer, use 1',needs:[
-      ['single-cell assay recorded',(p,t)=>t.some(x=>/scRNA|snRNA|single-cell|Fluidigm/.test(x))],
+      ['single-cell assay recorded',(p,t)=>t.some(x=>/^(scRNA|snRNA|Fluidigm single-cell|ATAC \/ multiome).* recorded$/.test(x))],
       ['expression files located',(p,t,a)=>yes(a,'rna','yes')],
       ['cell labels and gene identifiers documented',(p,t,a)=>yes(a,'annotation','yes')]]},
     {id:'lines',title:'Which of our lines model cells where a given disease gene acts?',source:'CReM-KG explainer, metapath Disease to Gene to Cell type to iPSC line',needs:[

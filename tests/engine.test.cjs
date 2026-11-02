@@ -154,3 +154,17 @@ test('panel manifest from real FCS headers links files to inventory reagents in 
  assert.equal(g.nodes.filter(n=>n.label==='DataFile').length,29);const rg=g.nodes.filter(n=>n.label==='Reagent');assert.equal(rg.length,8);assert.ok(rg.find(n=>n.reagent_id==='AB228'&&/647/.test(n.conjugation)));
  const sw=g.edges.filter(e=>e.relation==='STAINED_WITH');assert.equal(sw.length,29*8);assert.equal(g.edges.filter(e=>e.relation==='HAS_FILE').length,29);assert.deepEqual([...new Set(sw.map(e=>e.provenance))].sort(),['candidate','proposed']);
 });
+
+test('#11: a normalisation proposal depends only on the assay field, so projects sharing a source string agree with their own row',()=>{
+ const bulkText={experiment_type:'Sequencing (type to confirm)',Dataset_Name:'Pericyte RNA-seq',purpose_of_experiment:'bulk RNA seq of pericytes'};
+ const flowText={experiment_type:'Sequencing (type to confirm)',Dataset_Name:'Cell cycle RNA-seq',purpose_of_experiment:'cells sorted on the EpiFlow spectral flow cytometry platform'};
+ const m={...E.DEFAULT_MAP};const recs=[bulkText,flowText].map((p,i)=>({key:'k'+i,row:i+2,raw:p}));
+ const norm=E.normTable(recs,m);
+ assert.equal(norm.experiment_type.length,1,'one source string');
+ assert.equal(norm.experiment_type[0].proposed,'','text hints never become a proposed term');
+ assert.equal(norm.experiment_type[0].status,'unmapped');
+ assert.deepEqual(E.classify(bulkText),['Bulk RNA-seq in text, confirm assay']);
+ assert.deepEqual(E.classify(flowText),['flow cytometry in text, confirm assay']);
+ const g=E.graphExport(recs,m,{},{},norm);
+ for(const e of g.edges.filter(e=>e.relation==='HAS_ASSAY'))assert.equal(e.target,'assay:sequencing-type-to-confirm','graph keeps the source string when nothing is proposed');
+});
