@@ -59,7 +59,7 @@ test('every export carries the alpha note, and the plan omits the single-cell br
  const h=blankHarness();assert.equal(h.state().records.length,49);
  await h.click('export-session');assert.match(JSON.parse(h.node('#export-text').value).alpha_note,/alpha: identifiers/);
  await h.click('export-overview');const ov=h.node('#export-text').value;assert.match(ov,/alpha: identifiers/);assert.match(ov,/share the top score/);
- await h.click('export-nodes');assert.match(h.node('#export-text').value,/\n# LemonAId .* alpha/);
+ await h.click('export-nodes');assert.match(h.node('#export-text').value,/^# Scope: whole inventory, 49 projects\. LemonAId .* alpha/);
  await h.click('export-report');const rep=h.node('#export-text').value;
  assert.match(rep,/KMT2D iPSC Cell-Cycle RNA-seq Analysis/);assert.ok(!/scRNA-seq \/ snRNA-seq branch/.test(rep),'no single-cell branch for a bulk project');assert.match(rep,/alpha: identifiers/);
 });
@@ -90,4 +90,16 @@ test('the public build is general: no center questions, names or case study; the
 test('a click that is not an export does not download anything (regression: the session export ran on every click)',async()=>{
  const h=blankHarness();await h.click('nothing-here');assert.equal(h.node('#export-filename').textContent,'','no file was prepared');
  await h.click('export-session');assert.match(h.node('#export-filename').textContent,/lemonaid-session\.json/);
+});
+
+test('#24 #25: exports are named and stamped with the project name shown on screen, and the dialog says the scope',async()=>{
+ const h=blankHarness();const st=h.state();const rec=st.records.find(r=>r.key===st.selected);
+ const p=E.canonical(rec,st.map);assert.ok(p.Dataset_Name&&p.project_id&&p.Dataset_Name!==p.project_id,'the example row has a dataset name that differs from its id');
+ const shown=p.Dataset_Name.replace(/[^a-z0-9_-]/ig,'_');
+ await h.click('export-report');assert.equal(h.node('#export-filename').textContent,'Prepared: '+shown+'-preparation-plan.html','file named from the name on screen, not the id');
+ assert.match(h.node('#export-text').value,new RegExp('Scope: project '+p.Dataset_Name.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')+' \\(id '+p.project_id+'\\)'));
+ await h.click('export-actions');assert.match(h.node('#export-text').value.split('\n')[0],/^# Scope: project /);
+ await h.click('export-all');assert.match(h.node('#export-text').value.split('\n')[0],/^# Scope: whole inventory, 49 projects/);
+ await h.click('export-open');assert.equal(h.node('#export-title').textContent,'Export: '+p.Dataset_Name+', or all 49 projects');
+ assert.equal(h.node('#export-group-all').textContent,'For the whole inventory: all 49 projects');
 });
