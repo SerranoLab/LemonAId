@@ -1,6 +1,7 @@
 # LemonAId changelog
 
 ## Unreleased
+- Exports follow one rule (#11, #12, #13, #14, #15): a normalisation proposal uses the assay field alone, so projects sharing a source string agree with their own row, and anything found only in the title or purpose reads "in text, confirm assay" and never becomes a term; organisms carry NCBITaxon CURIEs (human, mouse, zebrafish, rat, ferret) and zebrafish is recognised; a bracketed note in a contact stays a note and not part of the person id; the shortlist states its tie-break and how many projects share the top score; the plan shows the single-cell and flow sections only for projects with those assays; every export ends with an alpha note that identifiers may change before v1.0.
 - Roadmap and decisions: aligned to CReM-KG (CREM.* identifiers by configuration, schema read from its BioCypher file, its competency questions and coverage fields); LemonAId recorded as the Aim 1 instrument.
 - Roadmap: v0.8.0 re-sequenced after a hands-on review (general build, file-backed sessions, import that forgives, plain-language pass first); reports and Excel import added to v0.9.0. Decision recorded.
 - The version shown in the sidebar, the overview and plan exports and the session file now comes from CITATION.cff at build time (it read "v0.3" in exports and "v0.7" in the sidebar). deploy.sh refuses a tag that disagrees with CITATION.cff; CI checks that the committed dist/ is exactly what the source builds and that no hand-written version label returns (#15).
