@@ -14,3 +14,12 @@
 .prov{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:0 0 14px}.prov .callout-label{margin:0 8px 0 0}.query{padding:16px 0;border-top:1px solid var(--line)}.query:first-of-type{border-top:0}.qhead{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.qhead strong{font-size:14px;line-height:1.45;max-width:760px}.qcount{font:22px 'Avenir Next',-apple-system,sans-serif;color:var(--navy);white-space:nowrap;font-variant-numeric:tabular-nums}.query.horizon .qcount{font-size:13px;color:var(--muted);font-style:italic}.needs{display:flex;flex-wrap:wrap;gap:6px}.need{display:inline-flex;align-items:center;gap:7px;font-size:12px;padding:5px 9px 5px 5px;border:1px solid var(--line);border-radius:5px;background:#fff}.need i{font-style:normal;font-variant-numeric:tabular-nums;min-width:30px;text-align:center;padding:2px 5px;border-radius:3px;background:var(--navy);color:#fff;font-size:11px}.need.zero i{background:#e4e7df;color:var(--muted)}.norm-table input{width:100%;font-size:12px;padding:7px 9px}.norm-table td:first-child{width:34%}.norm-table td:nth-child(3){width:26%}.norm-table td:nth-child(4){width:12%}
 .vgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.vgrid textarea,#v-excluded{font:12px/1.5 ui-monospace,monospace}@media(max-width:900px){.vgrid{grid-template-columns:1fr}}
 .th-sort{border:0;background:transparent;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;padding:0;cursor:pointer;text-decoration:underline dotted}.legend{margin:-8px 0 20px}.edgenames{display:block;margin-top:6px;font:10px/1.5 ui-monospace,monospace;color:var(--muted)}.qcount b{font-weight:600}
+
+/* v0.8 import: steps and doors */
+.steps{display:flex;gap:18px;list-style:none;padding:0;margin:6px 0 18px;font-size:12px;color:#647180;letter-spacing:.2px}
+.steps li{padding-bottom:6px;border-bottom:2px solid transparent}.steps li.current{color:var(--ink);border-color:#173E32;font-weight:600}.steps li.done{color:#2c5b48}
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:14px 0}
+.door{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:8px;padding:16px;background:#fbfcfd}
+.door strong{font-size:15px}.door span{font-size:13px;color:#5d6c7b;line-height:1.45}.door input[type=file]{font-size:12px;margin-top:4px}
+.door .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.mapping-actions{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}

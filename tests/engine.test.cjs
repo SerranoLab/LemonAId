@@ -195,3 +195,36 @@ test('#12: the shortlist breaks ties by evidence answered, then date, and report
  const list=E.shortlist(recs,m,10,reviews);
  assert.equal(list.tied,3);assert.equal(list.top,6);assert.deepEqual(list.map(x=>x.p.project_id),['answered','new','old']);
 });
+
+test('inventory from a folder: one row per project folder, inferred values marked, hidden folders skipped, no assay file read',()=>{
+ const files=[
+  {path:'Projects/ZF_FLOW/README.md',size:800,modified:Date.UTC(2024,9,28),text:'# Zebrafish Flow Cytometry Analysis\n\nNotch pathway in kdrl positive cells, wildtype vs kmt2d null.'},
+  {path:'Projects/ZF_FLOW/data/sample_sheet.csv',size:300,modified:Date.UTC(2024,10,1)},
+  {path:'Projects/ZF_FLOW/data/run1.fcs',size:5e6,modified:Date.UTC(2024,10,2)},
+  {path:'Projects/ZF_FLOW/.git/config',size:10,modified:Date.UTC(2020,0,1)},
+  {path:'Projects/iPSC_S8/analysis.qmd',size:2000,modified:Date.UTC(2026,1,17),text:'---\ntitle: "KMT2D iPSC Cell-Cycle RNA-seq Analysis"\n---\n# Intro'},
+  {path:'Projects/iPSC_S8/input/reads.fastq.gz',size:9e8,modified:Date.UTC(2026,1,20)},
+  {path:'Projects/loose.txt',size:1,modified:1}];
+ const inv=E.inventoryFromFolder(files,{lab:'Example Lab'});
+ assert.equal(inv.projects,2);
+ const zf=inv.rows.find(r=>r.raw.project_id==='ZF_FLOW').raw,s8=inv.rows.find(r=>r.raw.project_id==='iPSC_S8').raw;
+ assert.equal(zf.Dataset_Name,'Zebrafish Flow Cytometry Analysis');assert.equal(zf.project_date,'2024-10-28','oldest file, not the .git file');assert.equal(zf.genome_reference,'Zebrafish');
+ assert.equal(zf.experiment_type,'Flow cytometry (FCS files)');assert.equal(zf.sample_sheet_candidates,'data/sample_sheet.csv');assert.equal(zf.files_on_disk,'3');
+ assert.match(zf.inferred_fields,/Dataset_Name .*project_date .*experiment_type .*genome_reference .*verify before use/);
+ assert.equal(s8.Dataset_Name,'KMT2D iPSC Cell-Cycle RNA-seq Analysis');assert.equal(s8.experiment_type,'Sequencing (type to confirm)');assert.equal(s8.genome_reference,'Human');assert.equal(s8.size_MB,'858');
+ // the result feeds the same import path as a spreadsheet
+ const map=E.suggestMap(inv.headers);assert.equal(map.Dataset_Name,'Dataset_Name');assert.equal(map.lab,'Lab_PI');
+ // a listing without a common root works too
+ assert.equal(E.inventoryFromFolder([{path:'A/x.txt',size:1,modified:1},{path:'B/y.txt',size:1,modified:1}]).projects,2);
+});
+test('the blank template maps onto the planning fields by itself and carries the Core form labels',()=>{
+ const p=E.parseDelimited(E.templateCSV());const m=E.suggestMap(p.headers);
+ for(const k of ['project_id','Dataset_Name','lab','contact_person','experiment_type','genome_reference','reporters','purpose_of_experiment','geo_accession','project_date'])assert.ok(m[k],'maps '+k);
+ assert.ok(p.headers.includes('Type of Experiment / Platform')&&p.headers.includes('Genome Reference / Species')&&p.headers.includes('Description of Samples'));
+ assert.equal(p.rows.length,1);assert.match(E.templateGuideMarkdown(),/Sample sheet location/);
+});
+
+test('the committed template files are exactly what the app downloads',()=>{
+ assert.equal(fs.readFileSync(path.join(__dirname,'../examples/project_inventory_template.csv'),'utf8'),E.templateCSV());
+ assert.equal(fs.readFileSync(path.join(__dirname,'../examples/project_inventory_template_guide.md'),'utf8'),E.templateGuideMarkdown());
+});

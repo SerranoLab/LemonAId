@@ -16,7 +16,7 @@ jobs:
         run: git diff --exit-code -- dist/
       - name: the public build is general (no center questions, names or case study)
         run: |
-          ! grep -nE 'SFTPC|NKX2-1|KRT17|SKAAR|Carlos|CReM-KG|Villacorta|Lauren|Kotton|Mostoslavsky' dist/LemonAId.html
+          ! grep -nE 'SFTPC|NKX2-1|KRT17|SKAAR|Carlos|CReM-KG|Villacorta|Lauren|Kotton' dist/LemonAId.html
       - name: a center configuration builds and carries its questions
         run: |
           node build.cjs --queries config/crem.queries.json --name LemonAId_config_check

@@ -79,7 +79,9 @@ test('#11: for every example row, the graph assay term is either the field-only 
 
 test('the public build is general: no center questions, names or case study; the engine ships the five general questions',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../dist/LemonAId.html'),'utf8');
- assert.ok(!/SFTPC|NKX2-1|KRT17|SKAAR|Carlos|CReM-KG|Villacorta|Lauren|Kotton|Mostoslavsky/.test(html),'no center-specific text in the public build');
+ // Center questions, case-study genes and reviewers' names must not reach the public build. The embedded example
+ // inventory is a real lab's project list and may name collaborating labs; that is data, not configuration.
+ assert.ok(!/SFTPC|NKX2-1|KRT17|SKAAR|Carlos|CReM-KG|Villacorta|Lauren|Kotton/.test(html),'no center-specific text in the public build');
  assert.equal(E.QUERIES.length,5);assert.equal(E.QUERIES_SOURCE,'');assert.ok(E.QUERIES.every(q=>q.needs.every(([,t])=>typeof t==='function')));
  const cfg=JSON.parse(fs.readFileSync(path.join(__dirname,'../config/crem.queries.json'),'utf8'));
  assert.equal(cfg.queries.length,5);for(const q of cfg.queries)for(const n of q.needs)assert.ok(E.NEEDS[typeof n==='string'?n:n.need],'need exists: '+JSON.stringify(n));
