@@ -1,6 +1,10 @@
 # LemonAId changelog
 
 ## Unreleased
+
+## v0.8.0-alpha.2 (2026-11-02)
+Same-day follow-up to alpha.1 after Angie's first run with the CReM registry (issues #23, #24, #25). Fixes #24 and #25; #23 (folder size warning) is still open and documented on the door text only. Goes behind the gate for the four reviewers.
+
 - One name for a project everywhere (#24, #25): the dataset name when there is one, else the id. Screens 03 and 04 now say which project they are about, in a line under the selectors; the export dialog is titled with that name and the project count ("Export: KMT2D iPSC…, or all 409 projects"); files are named from the same name instead of the id; and line 1 of every export states its scope (project, or whole inventory). Found by Angie with the CReM registry, where ids and names differ.
 
 ## v0.8.0-alpha.1 (2026-11-02)
