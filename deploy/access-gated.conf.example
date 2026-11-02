@@ -1,5 +1,10 @@
-# Copy to /etc/nginx/lemonaid-access.conf on the droplet and replace the address with the one
-# `curl -s https://ifconfig.me` prints from the BU network. Everyone else gets 403 Forbidden.
-# If BU's outgoing address changes, add the new one here and reload nginx.
-allow 203.0.113.10;
+# Copy to /etc/nginx/lemonaid-access.conf on the droplet. Everyone not listed gets 403 Forbidden.
+# Boston University's two public address ranges cover the campus and the BU VPN. A single address
+# (what `curl -s https://ifconfig.me` prints) is not enough: BU traffic leaves through many addresses,
+# and a reviewer on campus was refused on 2 Nov 2026 when only one was listed.
+allow 128.197.0.0/16;   # Boston University
+allow 168.122.0.0/16;   # Boston University
+# One-off addresses for reviewers off campus without VPN go here, with a name and a date, and come out
+# when the site opens. Example:
+# allow 203.0.113.10;   # Reviewer name, home, added YYYY-MM-DD
 deny all;
