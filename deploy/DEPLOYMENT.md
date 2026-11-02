@@ -64,7 +64,7 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
    Droplet: `rm /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/lemonaid.serranolab.org.bootstrap.conf /etc/nginx/sites-enabled/lemonaid && nginx -t && systemctl reload nginx`
    Proof (Mac): `curl -I http://lemonaid.serranolab.org` returns `301` to https.
 6. **Gate, certificate and full config** (Mac, then droplet). The gate decides who may see the site
-   (see "The gate" below). Mac: `curl -s https://ifconfig.me` prints the address to allow. Droplet:
+   (see "The gate" below). Droplet:
    `cp /etc/nginx/access-gated.conf.example /etc/nginx/lemonaid-access.conf && nano /etc/nginx/lemonaid-access.conf`
    and replace `203.0.113.10` with that address. Then the certificate, in webroot mode, so certbot never
    edits the nginx files:
@@ -103,8 +103,11 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
 
 ## The gate
 
-Until v0.8.0, after Carlos's review, the site is visible only from BU's network address; everyone else
-gets 403 Forbidden. This follows the order of record (private until reviewed, then public, then the
+Until the open release, after Carlos's review, the site is visible only from Boston University's two
+public address ranges (128.197.0.0/16 and 168.122.0.0/16, campus and BU VPN); everyone else gets 403
+Forbidden. A single address is not enough: BU traffic leaves through many, and on 2 Nov 2026 a reviewer on
+campus was refused until the ranges replaced the one address. A reviewer at home without VPN needs their
+address added by hand (name and date in the comment), and those lines come out when the site opens. This follows the order of record (private until reviewed, then public, then the
 droplet) while letting the deploy, hand check and rollback drill run on the real server.
 `/etc/nginx/lemonaid-access.conf` holds the allow and deny lines and exists only on the droplet, so no
 address enters the repository. Port 80 is not gated, so certificate renewal is unaffected.
