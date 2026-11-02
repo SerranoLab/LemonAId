@@ -1,6 +1,7 @@
 # LemonAId changelog
 
 ## Unreleased
+- Browser test in CI: `tests/browser.test.cjs` drives the committed build through the import flow in real Chromium (Playwright) and fails if any click other than an export downloads a file; it fails on the #18 bug and passes on the fix. Skips, not fails, where Playwright is not installed.
 - Plain language on screen 01 and in the overview export: the intro, the banner, the four tiles, the Reach paragraph (now a question: where can someone outside your lab find this data?), the coverage heading and the shortlist heading are rewritten for a bench scientist; three planning-field labels renamed (Organism; What was measured; Public database ID). Wording only, no logic.
 - Start with what you have: the import dialog offers three doors. Choose your projects folder (the browser lists one project per folder from file names, dates and README or notebook text; assay files are never opened; every guessed value is marked inferred), upload a spreadsheet, or start a blank one from a template whose column names follow the Bioinformatics Core's sample-submission form. The import now has visible steps (choose, match your columns, check and import) with Back on every step and a preview of the first rows before anything is replaced. "Try the example inventory" loads the 49-project example in one click. Paste and session restore move under "Other ways in".
 - Fix: the session export ran on every click (introduced in #18; found by a browser run before release).

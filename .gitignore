@@ -12,3 +12,6 @@ Thumbs.db
 node_modules/
 __pycache__/
 dist/*_config_check.html
+# left behind by a local "npm install --no-save playwright" for tests/browser.test.cjs
+package-lock.json
+package.json
