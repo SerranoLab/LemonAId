@@ -23,3 +23,4 @@
 .door strong{font-size:15px}.door span{font-size:13px;color:#5d6c7b;line-height:1.45}.door input[type=file]{font-size:12px;margin-top:4px}
 .door .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .mapping-actions{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.focus-line{flex-basis:100%;margin:12px 0 0;font-size:13px;color:var(--muted)}.focus-line code{font-size:11px}
