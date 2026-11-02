@@ -210,7 +210,7 @@
     ['Dataset_Name','Dataset.title → Project','Preserve text; confirm whether each row is a project, dataset, run or request. Similar titles are not duplicate proof.'],
     ['lab','Lab.name → Project.lab','Keep the recorded lab; where the inventory marks the assignment as inferred, carry that flag on the link.'],
     ['project_date','SourceRecord.date_text → Project.date (after review)','Registry convention: the date the Core opened the project. Confirm before using it as an acquisition date.'],
-    ['contact_person','Contact.display_name → Project.contact','Propose aliases for review; do not merge “Lauren” with a full name without confirmation.'],
+    ['contact_person','Contact.display_name → Project.contact','Propose aliases for review; do not merge a first name with a full name without confirmation.'],
     ['genome_reference','Organism + ReferenceGenome + GeneAnnotation','Separate species and assembly; obtain annotation release from processing records. Preserve mixed source text.'],
     ['reporters','Reporter.description → CellLine / Sample (after review)','Retain original text and proposed controlled labels. No inference that flow data exist.'],
     ['experiment_type','Assay.label → OBI/EFO assay term (after normalisation)','Free text with many spellings per platform; map to one controlled term per record and keep the original string.'],
@@ -249,31 +249,39 @@
   // test over the canonical record, its tags, the assay term and the recorded answers. Edit QUERIES for
   // your own center; the mechanism is generic.
   const yes=(a,id,...vals)=>{const x=a&&a[id];return !!(x&&clean(x.evidence)&&(vals.length?vals.includes(x.value):x.value!=='unknown'&&x.value!=='no'));};
-  const QUERIES=[
-    {id:'markers',title:'Which clusters, across all experiments, have SFTPC and NKX2-1 among their top markers?',source:'CReM-KG explainer, use 1',needs:[
-      ['single-cell assay recorded',(p,t)=>t.some(x=>/^(scRNA|snRNA|Fluidigm single-cell|ATAC \/ multiome).* recorded$/.test(x))],
-      ['expression files located',(p,t,a)=>yes(a,'rna','yes')],
-      ['cell labels and gene identifiers documented',(p,t,a)=>yes(a,'annotation','yes')]]},
-    {id:'lines',title:'Which of our lines model cells where a given disease gene acts?',source:'CReM-KG explainer, metapath Disease to Gene to Cell type to iPSC line',needs:[
-      ['line or reporter recorded',p=>!missing(p.reporters)],
-      ['organism resolved',p=>!['Unknown','Unresolved'].includes(species(p).organism)],
-      ['contrast or marker results with processing records',(p,t,a)=>yes(a,'provenance','yes')],
-      ['libraries traced to samples and lines',(p,t,a)=>yes(a,'samples','yes','recover')]]},
-    {id:'q3',title:'Which lines were ever put through a media swap that induced KRT17, which have matched ATAC, and do the retained-accessibility lines share a donor feature?',source:'Carlos, query 3',needs:[
-      ['line or reporter recorded',p=>!missing(p.reporters)],
-      ['study design with conditions and time points confirmed',(p,t,a)=>yes(a,'replicates','yes')],
-      ['ATAC paired to the same sample or sibling aliquot',(p,t,a)=>yes(a,'relation','same','aliquots')],
-      ['files located',(p,t,a)=>yes(a,'rna','yes')]]},
-    {id:'q2',title:'Which projects have cells within a distance of the mouse pre-SKAAR region of a shared latent space, whatever the original cluster was called?',source:'Carlos, query 2 (needs a shared embedding)',needs:[
-      ['count matrix documented',(p,t,a)=>yes(a,'matrix','counts')],
-      ['cell labels mapped to an ontology',(p,t,a)=>yes(a,'annotation','yes')],
-      ['organism and assembly resolved',p=>species(p).assembly!=='Not supplied'],
-      ['reuse permitted',(p,t,a)=>yes(a,'access','yes')]]},
-    {id:'q1',title:'Across every line, protocol, medium and time point, which conditions produce a trapped SKAAR-like state, and which untried condition would flatten the basin?',source:'Carlos, query 1 (needs a causal model of fate; the horizon, not a deliverable)',horizon:true,needs:[
-      ['everything above, for every project',()=>false],
-      ['protocol versions and media linked to runs',()=>false],
-      ['a validated causal model of differentiation',()=>false]]}
+  // Needs are named tests so that a center's questions can be data (config/*.queries.json) rather than code.
+  // Each need: (canonical record, assay tags, recorded answers) => boolean.
+  const NEEDS={
+    single_cell_recorded:  {label:'single-cell assay recorded',test:(p,t)=>t.some(x=>/^(scRNA|snRNA|Fluidigm single-cell|ATAC \/ multiome).* recorded$/.test(x))},
+    assay_recorded:        {label:'assay type recorded',test:(p,t)=>t.some(x=>/ recorded$/.test(x))},
+    organism_resolved:     {label:'organism resolved',test:p=>!['Unknown','Unresolved'].includes(species(p).organism)},
+    assembly_resolved:     {label:'organism and assembly resolved',test:p=>species(p).assembly!=='Not supplied'},
+    contact_recorded:      {label:'a named contact recorded',test:p=>!missing(p.contact_person)},
+    reporter_recorded:     {label:'line or reporter recorded',test:p=>!missing(p.reporters)},
+    accession_recorded:    {label:'public accession recorded',test:p=>hasAccession(p)},
+    files_located:         {label:'primary data files located',test:(p,t,a)=>yes(a,'rna','yes')},
+    samples_traced:        {label:'libraries or acquisitions traced to samples',test:(p,t,a)=>yes(a,'samples','yes','recover')},
+    annotation_documented: {label:'cell labels and gene identifiers documented',test:(p,t,a)=>yes(a,'annotation','yes')},
+    provenance_recorded:   {label:'processing and QC records available',test:(p,t,a)=>yes(a,'provenance','yes')},
+    design_confirmed:      {label:'study design with conditions and time points confirmed',test:(p,t,a)=>yes(a,'replicates','yes')},
+    assays_paired:         {label:'second assay paired to the same sample or sibling aliquot',test:(p,t,a)=>yes(a,'relation','same','aliquots')},
+    counts_documented:     {label:'count matrix documented',test:(p,t,a)=>yes(a,'matrix','counts')},
+    reuse_permitted:       {label:'reuse terms recorded',test:(p,t,a)=>yes(a,'access','yes')},
+    never:                 {label:'not yet possible from an inventory',test:()=>false}
+  };
+  // The general questions: what a lab manager asks of any project list. A center replaces them with its own
+  // (build.cjs --queries config/<center>.queries.json); the blank build carries only these.
+  const GENERAL_QUERIES=[
+    {id:'reach',title:'Which projects could someone outside the lab find and cite today?',source:'LemonAId, general',needs:['accession_recorded']},
+    {id:'located',title:'Which projects have a named contact and located data files?',source:'LemonAId, general',needs:['contact_recorded','files_located']},
+    {id:'described',title:'Which projects record what was measured, in which organism?',source:'LemonAId, general',needs:['assay_recorded','organism_resolved']},
+    {id:'traceable',title:'Which projects can trace every file back to a sample?',source:'LemonAId, general',needs:['files_located','samples_traced']},
+    {id:'reusable',title:'Which projects have the reuse terms and processing records a second lab would need?',source:'LemonAId, general',needs:['reuse_permitted','provenance_recorded']}
   ];
+  const queryConfig=(typeof window!=='undefined'&&window.LEMONAID_QUERIES)||null;
+  const toQuery=q=>({id:q.id,title:q.title,source:q.source||'',horizon:!!q.horizon,needs:(q.needs||[]).map(n=>{const id=typeof n==='string'?n:n.need,label=(typeof n==='object'&&n.label)||(NEEDS[id]||NEEDS.never).label;return [label,(NEEDS[id]||NEEDS.never).test];})});
+  const QUERIES=((queryConfig&&queryConfig.queries)||GENERAL_QUERIES).map(toQuery);
+  const QUERIES_SOURCE=(queryConfig&&queryConfig.source)||'';
   function queryReadiness(records,map,reviews={}){
     return QUERIES.map(q=>{
       const per=q.needs.map(()=>0);let ready=0;
@@ -283,7 +291,7 @@
     });
   }
   // Provenance vocabulary: LemonAId's plain word, mapped to Biolink edge properties (knowledge_level,
-  // agent_type, primary_knowledge_source) so a Biolink-aligned loader (OptimusKG / CReM-KG) can take it as is.
+  // agent_type, primary_knowledge_source) so a Biolink-aligned loader (OptimusKG, a center knowledge graph) can take it as is.
   const PROVENANCE={
     recorded:      {meaning:'Present in the source inventory as written',               knowledge_level:'knowledge_assertion',   agent_type:'manual_agent',                         source:'inventory'},
     inferred:      {meaning:'Derived by the inventory compiler (for example lab from folder paths)', knowledge_level:'observation', agent_type:'data_analysis_pipeline',          source:'inventory'},
@@ -296,7 +304,7 @@
     candidate:     {meaning:'Marker matched; several conjugates possible; a person chooses', knowledge_level:'prediction',       agent_type:'automated_agent',                      source:'file'}
   };
   // Graph export: one row per node and per edge, project level, with provenance on every edge.
-  // Node labels follow the CReM-KG nouns where the inventory can support them; sample, contrast and
+  // Node labels follow the knowledge-graph nouns where the inventory can support them; sample, contrast and
   // gene nodes appear only once sample-level data have been ingested, so they are not invented here.
   // Panel manifest rows (from tools/fcs_panel_manifest.py): file, detector, stain_label, match, reagent_ids
   function parseManifest(text){try{const p=parseDelimited(text);return p.rows.map(r=>r.raw).filter(r=>r.file&&r.reagent_ids);}catch{return [];}}
@@ -427,6 +435,6 @@
   }
 
   function csv(rows){return rows.map(r=>r.map(x=>{let s=String(x??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}).join(',')).join('\r\n');}
-  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,SHORTLIST_TIEBREAK,personName,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
+  const api={FIELDS,READINESS_FIELDS,READINESS_RULE,SHORTLIST_TIEBREAK,personName,PROVENANCE,GOALS,PROV_FIELDS,NORM_TARGETS,QUERIES,QUERIES_SOURCE,NEEDS,GENERAL_QUERIES,provenanceMap,provenanceOf,normTable,termFor,queryReadiness,graphExport,parseManifest,validateSampleSheet,detectColumns,DEFAULT_MAP,missing,accessionOf,hasAccession,accessionNote,canonical,parseDelimited,suggestMap,classify,species,QUESTIONS,applicableQuestions,completeness,readiness,shortlist,answer,validAnswers,plan,MAPPING,csv};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;root.CREM=api;
 })(typeof window!=='undefined'?window:globalThis);

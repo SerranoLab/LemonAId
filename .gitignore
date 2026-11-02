@@ -11,3 +11,4 @@ Thumbs.db
 *.swp
 node_modules/
 __pycache__/
+dist/*_config_check.html
