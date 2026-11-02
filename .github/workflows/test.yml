@@ -38,3 +38,18 @@ jobs:
         run: |
           ! grep -q '<script[^>]*src=' dist/LemonAId.html
           ! grep -q '<link[^>]*href=' dist/LemonAId.html
+  browser:
+    name: browser journeys (Chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node build.cjs
+      - name: install Playwright and Chromium (the app itself has no dependencies)
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: import flow in a real browser (folder, match, check, back, import, downloads, example)
+        run: node --test tests/browser.test.cjs

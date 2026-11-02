@@ -38,6 +38,8 @@ The first walks a real project folder, checks the sample sheet against it with t
 node build.cjs                                   # dist/LemonAId.html, no inventory embedded
 node build.cjs --data path/to/data.js --name LemonAId_MyCenter --brand "My Center|DATA READINESS"
 node --test tests/engine.test.cjs tests/app.test.cjs
+# the import flow in a real browser (needs Playwright once: npm install --no-save playwright && npx playwright install chromium)
+node --test tests/browser.test.cjs
 ```
 
 `src/data.blank.js` shows the embedded-inventory format; `docs/inventory-format.md` describes the columns. `data/reagents.json` is the Serrano Lab [EpiFlow Panel Builder](https://github.com/SerranoLab/EpiFlow_Builder) inventory (267 reagents) and is embedded in every build; replace it with your own export.
