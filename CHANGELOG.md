@@ -1,6 +1,7 @@
 # LemonAId changelog
 
 ## Unreleased
+- Open alpha: site and repository public (decision 2026-11-03); `.zenodo.json` for the Zenodo deposit; README alpha note replaces a hand-written version label.
 
 ## v0.8.0-alpha.2 (2026-11-02)
 Same-day follow-up to alpha.1 after Angie's first run with the CReM registry (issues #23, #24, #25). Fixes #24 and #25; #23 (folder size warning) is still open and documented on the door text only. Goes behind the gate for the four reviewers.

@@ -103,7 +103,7 @@ The droplet comes before DNS because the DNS record needs the droplet's IP. Comm
 
 ## The gate
 
-Until the open release, after Carlos's review, the site is visible only from Boston University's two
+Until 3 Nov 2026 (docs/DECISIONS.md, "Open the site and the repository now"), the site is visible only from Boston University's two
 public address ranges (128.197.0.0/16 and 168.122.0.0/16, campus and BU VPN); everyone else gets 403
 Forbidden. A single address is not enough: BU traffic leaves through many, and on 2 Nov 2026 a reviewer on
 campus was refused until the ranges replaced the one address. A reviewer at home without VPN needs their

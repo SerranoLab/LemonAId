@@ -2,7 +2,9 @@
 
 **Your data. A clearer path.** A local, single-file planner that takes the project inventory a lab already keeps and turns it into a picture of what the lab has, what is missing, and the checks that make each dataset findable and reusable by others.
 
-Center for Regenerative Medicine, Boston University · v0.7.1 · October 2026
+Center for Regenerative Medicine, Boston University. Version and citation in `CITATION.cff`; the app shows its version in the sidebar.
+
+> **Alpha.** LemonAId is open for early use and review at https://lemonaid.serranolab.org. Identifiers and column names may change before v1.0, every export says so on its first line, and the readiness figures describe paperwork, not data. Known gaps are the open issues; the three found on the first day with a real 409-project registry are the size warning for large folders (#23) and two naming fixes already shipped (#24, #25). Please report what confuses you as an issue.
 
 ## What it does
 

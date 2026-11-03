@@ -1,0 +1,35 @@
+{
+  "title": "LemonAId: a local data-readiness planner for research laboratories",
+  "upload_type": "software",
+  "description": "<p>A single-file, local web application that takes a laboratory's project inventory, or the project folder itself, and reports how far each dataset reaches (public database, online viewer, or only the lab), which fields the inventory lacks, which projects are closest to shareable, and the evidence-backed checks needed before data can be found and reused. Nothing leaves the browser. Includes a sample-sheet validator, a Biolink-aligned graph export with provenance on every edge, and a template whose columns follow a sequencing core's sample-submission form.</p><p>Alpha: identifiers and column names may change before v1.0. Built at the Center for Regenerative Medicine, Boston University, as the intake and readiness-report step of the CReM knowledge graph (CReM-KG).</p>",
+  "creators": [
+    {
+      "name": "Serrano, Maria A.",
+      "affiliation": "Center for Regenerative Medicine, Boston University Chobanian & Avedisian School of Medicine",
+      "orcid": "0000-0002-4318-3746"
+    },
+    {
+      "name": "Villacorta Martin, Carlos",
+      "affiliation": "Bioinformatics Core, Center for Regenerative Medicine, Boston University"
+    }
+  ],
+  "license": "MIT",
+  "access_right": "open",
+  "keywords": [
+    "data readiness",
+    "FAIR data",
+    "knowledge graph",
+    "provenance",
+    "flow cytometry",
+    "single-cell genomics",
+    "research data management"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://lemonaid.serranolab.org",
+      "relation": "isSupplementTo",
+      "resource_type": "software"
+    }
+  ],
+  "version": "0.8.0-alpha.2"
+}
