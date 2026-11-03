@@ -4,7 +4,7 @@
 
 Center for Regenerative Medicine, Boston University. Version and citation in `CITATION.cff`; the app shows its version in the sidebar.
 
-> **Alpha, open for community feedback.** LemonAId is at https://lemonaid.serranolab.org for anyone to try with their own project list or folder; nothing you load leaves your browser. We are asking for feedback now, before the identifiers and column names settle at v1.0: which sentence on screen you did not understand, which guess about your data was wrong, and whether the plan it proposes is one your lab would follow. Open an issue, or email the maintainer in `CITATION.cff`. Every export says on its first line that it comes from an alpha, and the readiness figures describe paperwork, not data. Known gaps are the open issues.
+> **Alpha, open for community feedback.** LemonAId is at https://lemonaid.serranolab.org for anyone to try with their own project list or folder; nothing you load leaves your browser.
 
 ## What it does
 
