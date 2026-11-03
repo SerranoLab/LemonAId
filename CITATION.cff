@@ -21,10 +21,8 @@ authors:
     orcid: "https://orcid.org/0000-0002-4318-3746"
     email: maserr@bu.edu
     affiliation: "Center for Regenerative Medicine, Boston University Chobanian & Avedisian School of Medicine"
-  - family-names: Villacorta Martin
-    given-names: Carlos
-    # orcid: pending
-    affiliation: "Bioinformatics Core, Center for Regenerative Medicine, Boston University"
+# Carlos Villacorta Martin (Bioinformatics Core, CReM) co-designed the tool and is credited in the README;
+# he joins the author list when he confirms. Zenodo lists him as a contributor for v0.8.0-alpha.2.
 keywords:
   - data readiness
   - FAIR data

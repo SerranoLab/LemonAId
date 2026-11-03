@@ -7,10 +7,6 @@
       "name": "Serrano, Maria A.",
       "affiliation": "Center for Regenerative Medicine, Boston University Chobanian & Avedisian School of Medicine",
       "orcid": "0000-0002-4318-3746"
-    },
-    {
-      "name": "Villacorta Martin, Carlos",
-      "affiliation": "Bioinformatics Core, Center for Regenerative Medicine, Boston University"
     }
   ],
   "license": "MIT",
@@ -31,5 +27,12 @@
       "resource_type": "software"
     }
   ],
-  "version": "0.8.0-alpha.2"
+  "version": "0.8.0-alpha.2",
+  "contributors": [
+    {
+      "name": "Villacorta Martin, Carlos",
+      "type": "Other",
+      "affiliation": "Bioinformatics Core, Center for Regenerative Medicine, Boston University"
+    }
+  ]
 }
