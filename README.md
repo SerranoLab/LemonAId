@@ -2,7 +2,9 @@
 
 **Your data. A clearer path.** A local, single-file planner that takes the project inventory a lab already keeps and turns it into a picture of what the lab has, what is missing, and the checks that make each dataset findable and reusable by others.
 
-Center for Regenerative Medicine, Boston University · v0.7.1 · October 2026
+Center for Regenerative Medicine, Boston University. Version and citation in `CITATION.cff`; the app shows its version in the sidebar.
+
+> **Alpha, open for community feedback.** LemonAId is at https://lemonaid.serranolab.org for anyone to try with their own project list or folder; nothing you load leaves your browser. We are asking for feedback now, before the identifiers and column names settle at v1.0: which sentence on screen you did not understand, which guess about your data was wrong, and whether the plan it proposes is one your lab would follow. Open an issue, or email the maintainer in `CITATION.cff`. Every export says on its first line that it comes from an alpha, and the readiness figures describe paperwork, not data. Known gaps are the open issues.
 
 ## What it does
 
@@ -73,6 +75,14 @@ lab's own data management and sharing plan.
 ## Provenance vocabulary
 
 Every edge in the graph export carries one of: `recorded` (in the source inventory), `inferred` (derived by the inventory's compiler), `absent`, `normalised` (controlled term proposed by LemonAId; source string kept as evidence), `reviewed` (a normalised term confirmed by a named reviewer), `user_reported` (an answer with evidence on screen 03), `file_header` (read from an FCS header, marker and fluorochrome agree), `proposed` (header label plus detector convention), `candidate` (marker only; a person chooses).
+
+## Feedback we are looking for
+
+- **Labs:** load your own inventory or folder. Tell us what was guessed wrong, what you could not answer on screen 03, and whether screen 04 is a plan you would act on.
+- **Cores and centers:** does the template match the columns you already ask for? What would you add to the questions a center wants answered?
+- **Data engineers:** the graph export, the provenance vocabulary and the normalisation table; where would a CURIE or a Biolink class be wrong?
+
+Issues are the place: https://github.com/SerranoLab/LemonAId/issues. One confusion per issue, with the screen number, is the most useful report we can get.
 
 ## Tests
 
